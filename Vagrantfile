@@ -69,4 +69,5 @@ Vagrant.configure("2") do |config|
   #   apt-get install -y apache2
   # SHELL
   config.vm.provision :shell, path: "provision.sh"
+  config.vm.provision :shell, path: "create_test_data.sh"
 end

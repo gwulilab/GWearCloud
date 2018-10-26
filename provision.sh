@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # ========= Installing InfluxDB ==========
-wget https://dl.influxdata.com/influxdb/releases/influxdb_1.2.4_amd64.deb
-dpkg -i influxdb_1.2.4_amd64.deb
+wget https://dl.influxdata.com/influxdb/releases/influxdb_1.6.4_amd64.deb
+dpkg -i influxdb_1.6.4_amd64.deb
 
 # ========= Starts InfluxDB ==============
 systemctl enable influxdb
@@ -19,9 +19,9 @@ influx -execute 'CREATE USER "influx" WITH PASSWORD "influx_pass" WITH ALL PRIVI
 systemctl restart influxbd
 
 # ========= Installing Grafana ==========
-wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_4.3.1_amd64.deb
-apt-get install -y adduser libfontconfig
-dpkg -i grafana_4.3.1_amd64.deb
+wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_5.3.2_amd64.deb
+apt install -y libfontconfig
+dpkg -i grafana_5.3.2_amd64.deb
 
 # ========= Starts Grafana ==============
 /bin/systemctl enable grafana-server
