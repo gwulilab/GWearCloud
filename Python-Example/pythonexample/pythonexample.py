@@ -38,5 +38,9 @@ try:
 
     if (commit == 'y'):
         conn.commit()
+
+    # Close the connections when done
+    cursor.close()
+    conn.close()
 except Exception as e:
     print e
