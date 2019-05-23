@@ -1,0 +1,1005 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Resources": {
+        "gwearpublicvpc": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": "172.31.0.0/16",
+                "InstanceTenancy": "default",
+                "EnableDnsSupport": "true",
+                "EnableDnsHostnames": "true",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "GWearCloud-Public"
+                    }
+                ]
+            }
+        },
+        "gwearinternetgateway": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {}
+        },
+        "gw1": {
+          "Type": "AWS::EC2::VPCGatewayAttachment",
+          "Properties": {
+            "VpcId": {
+              "Ref": "gwearpublicvpc"
+            },
+            "InternetGatewayId": {
+              "Ref": "gwearinternetgateway"
+            }
+          }
+        },
+        "gwearroutetable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "gwearpublicvpc"
+                }
+            }
+        },
+        "route1": {
+          "Type": "AWS::EC2::Route",
+          "Properties": {
+            "DestinationCidrBlock": "0.0.0.0/0",
+            "RouteTableId": {
+              "Ref": "gwearroutetable"
+            },
+            "GatewayId": {
+              "Ref": "gwearinternetgateway"
+            }
+          },
+          "DependsOn": "gw1"
+        },
+        "rdsgwear": {
+            "Type": "AWS::RDS::DBInstance",
+            "Properties": {
+                "AllocatedStorage": "20",
+                "AllowMajorVersionUpgrade": "false",
+                "AutoMinorVersionUpgrade": "true",
+                "DBInstanceClass": "db.t2.micro",
+                "Port": "5432",
+                "PubliclyAccessible": "true",
+                "StorageType": "gp2",
+                "BackupRetentionPeriod": "7",
+                "MasterUsername": "gwear",
+                "MasterUserPassword": "MyPassword",
+                "PreferredBackupWindow": "09:15-09:45",
+                "PreferredMaintenanceWindow": "mon:05:38-mon:06:08",
+                "DBName": "gwear",
+                "Engine": "postgres",
+                "EngineVersion": "10.6",
+                "LicenseModel": "postgresql-license",
+                "DBSubnetGroupName": {
+                    "Ref": "dbsubnetdefault"
+                },
+                "VPCSecurityGroups": [
+                    {
+                        "Ref": "sgPRISMSPrivate"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "workload-type",
+                        "Value": "other"
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "99fda0e8-f542-419e-bbe0-94cc0e759e8d"
+                }
+            }
+        },
+        "gwearsubnet1": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "CidrBlock": "172.31.0.0/20",
+                "VpcId": {
+                    "Ref": "gwearpublicvpc"
+                }
+            }
+        },
+        "gwearsubnet2": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "CidrBlock": "172.31.16.0/20",
+                "VpcId": {
+                    "Ref": "gwearpublicvpc"
+                }
+            }
+        },
+        "gwearsubnet3": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "CidrBlock": "172.31.32.0/20",
+                "VpcId": {
+                    "Ref": "gwearpublicvpc"
+                }
+            }
+        },
+        "gwearsubnet4": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "CidrBlock": "172.31.48.0/20",
+                "VpcId": {
+                    "Ref": "gwearpublicvpc"
+                }
+            }
+        },
+        "gwearsubnet5": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "CidrBlock": "172.31.64.0/20",
+                "VpcId": {
+                    "Ref": "gwearpublicvpc"
+                }
+            }
+        },
+        "gwearsubnet6": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "CidrBlock": "172.31.80.0/20",
+                "VpcId": {
+                    "Ref": "gwearpublicvpc"
+                }
+            }
+        },
+        "dbsubnetdefault": {
+            "Type": "AWS::RDS::DBSubnetGroup",
+            "Properties": {
+                "DBSubnetGroupDescription": "default",
+                "SubnetIds": [
+                    { "Ref": "gwearsubnet1" },
+                    { "Ref": "gwearsubnet2" },
+                    { "Ref": "gwearsubnet3" },
+                    { "Ref": "gwearsubnet4" },
+                    { "Ref": "gwearsubnet5" },
+                    { "Ref": "gwearsubnet6" }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "80ea2bab-70c0-40a6-a4f2-518ee8cd2e54"
+                }
+            }
+        },
+        "sgPRISMS": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Security group for PRISMS server",
+                "VpcId": { "Ref": "gwearpublicvpc" }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "10df573e-d67f-4594-bf67-91f5d53d8fcb"
+                }
+            }
+        },
+        "sgPRISMSPrivate": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "PRISMS security group for internal resources",
+                "VpcId": { "Ref": "gwearpublicvpc" }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "1406b0b9-c7a6-4cbb-a0f0-5b6ebb173846"
+                }
+            }
+        },
+        "ingress1": {
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "Properties": {
+                "GroupId": {
+                    "Ref": "sgPRISMS"
+                },
+                "IpProtocol": "tcp",
+                "FromPort": "22",
+                "ToPort": "22",
+                "CidrIp": "0.0.0.0/0"
+            }
+        },
+        "ingress2": {
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "Properties": {
+                "GroupId": {
+                    "Ref": "sgPRISMS"
+                },
+                "IpProtocol": "tcp",
+                "FromPort": "8086",
+                "ToPort": "8086",
+                "CidrIp": "0.0.0.0/0"
+            }
+        },
+        "ingress3": {
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "Properties": {
+                "GroupId": {
+                    "Ref": "sgPRISMS"
+                },
+                "IpProtocol": "tcp",
+                "FromPort": "3000",
+                "ToPort": "3000",
+                "CidrIp": "0.0.0.0/0"
+            }
+        },
+        "ingress4": {
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "Properties": {
+                "GroupId": {
+                    "Ref": "sgPRISMS"
+                },
+                "IpProtocol": "tcp",
+                "FromPort": "8088",
+                "ToPort": "8088",
+                "CidrIp": "0.0.0.0/0"
+            }
+        },
+        "ingress5": {
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "Properties": {
+                "GroupId": {
+                    "Ref": "sgPRISMSPrivate"
+                },
+                "IpProtocol": "tcp",
+                "FromPort": "5432",
+                "ToPort": "5432",
+                "CidrIp": "0.0.0.0/0"
+            }
+        },
+        "egress1": {
+            "Type": "AWS::EC2::SecurityGroupEgress",
+            "Properties": {
+                "GroupId": {
+                    "Ref": "sgPRISMS"
+                },
+                "IpProtocol": "-1",
+                "CidrIp": "0.0.0.0/0"
+            }
+        },
+        "egress2": {
+            "Type": "AWS::EC2::SecurityGroupEgress",
+            "Properties": {
+                "GroupId": {
+                    "Ref": "sgPRISMSPrivate"
+                },
+                "IpProtocol": "-1",
+                "CidrIp": "0.0.0.0/0"
+            }
+        },
+        "GWearCloudPOST": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Code": {
+                    "S3Bucket": "gwearcloud-deployables",
+                    "S3Key": "GWearCloud-GET.zip"
+                },
+                "Description": "",
+                "Tags": [
+                    {
+                        "Value": "SAM",
+                        "Key": "lambda:createdBy"
+                    }
+                ],
+                "MemorySize": 128,
+                "Environment": {
+                    "Variables": {
+                        "PostgreSQL_URL": {
+                            "Fn::Sub": ["postgres://gwear:MyPassword@${__EndpointURL__}:5432/gwear",
+                                {
+                                "__EndpointURL__": {"Fn::GetAtt": ["rdsgwear", "Endpoint.Address"]}
+                                }
+                            ]
+                        }
+                    }
+                },
+                "Handler": "index.handler",
+                "Role": "arn:aws:iam::583672402817:role/lambda_rds_access",
+                "Timeout": 3,
+                "Runtime": "nodejs8.10"
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "7dcf69e7-8fd7-4bc5-b161-43cb48c33e94"
+                }
+            }
+        },
+        "GWearCloudGETApi1PermissionProd": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "Action": "lambda:invokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "FunctionName": {
+                    "Ref": "GWearCloudGET"
+                },
+                "SourceArn": {
+                    "Fn::Sub": [
+                        "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${__ApiId__}/beta/GET/patient-data",
+                        {
+                            "__Stage__": "Prod",
+                            "__ApiId__": {
+                                "Ref": "GWearCloudApi"
+                            }
+                        }
+                    ]
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "f92971b0-7dce-489f-80ad-cd0dbdf6211b"
+                }
+            }
+        },
+        "GWearCloudPOSTApi1PermissionProd": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "Action": "lambda:invokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "FunctionName": {
+                    "Ref": "GWearCloudPOST"
+                },
+                "SourceArn": {
+                    "Fn::Sub": [
+                        "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${__ApiId__}/${__Stage__}/POST/patient-data",
+                        {
+                            "__Stage__": "Prod",
+                            "__ApiId__": {
+                                "Ref": "GWearCloudApi"
+                            }
+                        }
+                    ]
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "03b0feb6-4dbe-402a-b355-6cbfb1cffa7e"
+                }
+            }
+        },
+        "GWearCloudGETApi1PermissionTest": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "Action": "lambda:invokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "FunctionName": {
+                    "Ref": "GWearCloudGET"
+                },
+                "SourceArn": {
+                    "Fn::Sub": [
+                        "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${__ApiId__}/${__Stage__}/GET/patient-data",
+                        {
+                            "__Stage__": "*",
+                            "__ApiId__": {
+                                "Ref": "GWearCloudApi"
+                            }
+                        }
+                    ]
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "8f8e18f6-6b13-46f0-b18f-49b543d734c2"
+                }
+            }
+        },
+        "GWearCloudGET": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Code": {
+                    "S3Bucket": "gwearcloud-deployables",
+                    "S3Key": "GWearCloud-GET.zip"
+                },
+                "Description": "",
+                "Tags": [
+                    {
+                        "Value": "SAM",
+                        "Key": "lambda:createdBy"
+                    }
+                ],
+                "MemorySize": 128,
+                "Environment": {
+                    "Variables": {
+                        "PostgreSQL_URL": {
+                            "Fn::Sub": ["postgres://gwear:MyPassword@${__EndpointURL__}:5432/gwear",
+                                {
+                                "__EndpointURL__": {"Fn::GetAtt": ["rdsgwear", "Endpoint.Address"]}
+                                }
+                            ]
+                        }
+                    }
+                },
+                "Handler": "index.handler",
+                "Role": "arn:aws:iam::583672402817:role/lambda_rds_access",
+                "Timeout": 3,
+                "Runtime": "nodejs8.10"
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "8ddcb568-af3f-490e-b189-c9d2dbd495db"
+                }
+            }
+        },
+        "GWearCloudPOSTApi1PermissionTest": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "Action": "lambda:invokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "FunctionName": {
+                    "Ref": "GWearCloudPOST"
+                },
+                "SourceArn": {
+                    "Fn::Sub": [
+                        "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${__ApiId__}/${__Stage__}/POST/patient-data",
+                        {
+                            "__Stage__": "*",
+                            "__ApiId__": {
+                                "Ref": "GWearCloudApi"
+                            }
+                        }
+                    ]
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "c0c8956e-43f0-4b9c-80d7-fe99da2b523f"
+                }
+            }
+        },
+        "GWearCloudApi": {
+            "Type": "AWS::ApiGateway::RestApi",
+            "Properties": {
+                "Name": "GWearCloudApi",
+                "Description": "Deployed GWearCloud API",
+                "Body": {
+                    "swagger": "2.0",
+                    "info": {
+                        "version": "2019-04-19T03:51:53Z",
+                        "title": "GWearCloud"
+                    },
+                    "host": "213xjpuh93.execute-api.us-east-1.amazonaws.com",
+                    "basePath": "/beta",
+                    "schemes": [
+                        "https"
+                    ],
+                    "paths": {
+                        "/": {
+                            "get": {
+                                "produces": [
+                                    "application/json"
+                                ],
+                                "responses": {
+                                    "200": {
+                                        "description": "200 response",
+                                        "schema": {
+                                            "$ref": "#/definitions/Empty"
+                                        },
+                                        "headers": {
+                                            "Access-Control-Allow-Origin": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "security": [
+                                    {
+                                        "api_key": []
+                                    }
+                                ],
+                                "x-amazon-apigateway-integration": {
+                                    "uri": {"Fn::Sub": 
+                                        ["arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${__LambdaArn__}/invocations",
+                                        {
+                                            "__LambdaArn__": {"Fn::GetAtt": ["GWearCloudGET", "Arn"]}
+                                        }
+                                        ]
+                                    },
+                                    "responses": {
+                                        "default": {
+                                            "statusCode": "200",
+                                            "responseParameters": {
+                                                "method.response.header.Access-Control-Allow-Origin": "'*'"
+                                            }
+                                        }
+                                    },
+                                    "passthroughBehavior": "when_no_match",
+                                    "httpMethod": "POST",
+                                    "contentHandling": "CONVERT_TO_TEXT",
+                                    "type": "aws"
+                                }
+                            },
+                            "post": {
+                                "consumes": [
+                                    "application/json"
+                                ],
+                                "produces": [
+                                    "application/json"
+                                ],
+                                "parameters": [
+                                    {
+                                        "in": "body",
+                                        "name": "PatientData",
+                                        "required": true,
+                                        "schema": {
+                                            "$ref": "#/definitions/PatientData"
+                                        }
+                                    }
+                                ],
+                                "responses": {
+                                    "200": {
+                                        "description": "200 response",
+                                        "schema": {
+                                            "$ref": "#/definitions/Empty"
+                                        },
+                                        "headers": {
+                                            "Access-Control-Allow-Origin": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "security": [
+                                    {
+                                        "api_key": []
+                                    }
+                                ],
+                                "x-amazon-apigateway-integration": {
+                                    "uri": {"Fn::Sub": 
+                                        ["arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${__LambdaArn__}/invocations",
+                                        {
+                                            "__LambdaArn__": {"Fn::GetAtt": ["GWearCloudPOST", "Arn"]}
+                                        }
+                                        ]
+                                    },
+                                    "responses": {
+                                        "default": {
+                                            "statusCode": "200",
+                                            "responseParameters": {
+                                                "method.response.header.Access-Control-Allow-Origin": "'*'"
+                                            }
+                                        }
+                                    },
+                                    "passthroughBehavior": "when_no_match",
+                                    "httpMethod": "POST",
+                                    "requestTemplates": {
+                                        "application/json": "{\n	\"method\": \"$context.httpMethod\",\n	\"body\" : $input.json('$'),\n	\"headers\": {\n		#foreach($param in $input.params().header.keySet())\n		\"$param\": \"$util.escapeJavaScript($input.params().header.get($param))\" #if($foreach.hasNext),#end\n\n		#end\n	},\n	\"queryParams\": {\n		#foreach($param in $input.params().querystring.keySet())\n		\"$param\": \"$util.escapeJavaScript($input.params().querystring.get($param))\" #if($foreach.hasNext),#end\n\n		#end\n	},\n	\"pathParams\": {\n		#foreach($param in $input.params().path.keySet())\n		\"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n\n		#end\n	}	\n}"
+                                    },
+                                    "contentHandling": "CONVERT_TO_TEXT",
+                                    "type": "aws"
+                                }
+                            },
+                            "options": {
+                                "consumes": [
+                                    "application/json"
+                                ],
+                                "produces": [
+                                    "application/json"
+                                ],
+                                "responses": {
+                                    "200": {
+                                        "description": "200 response",
+                                        "schema": {
+                                            "$ref": "#/definitions/Empty"
+                                        },
+                                        "headers": {
+                                            "Access-Control-Allow-Origin": {
+                                                "type": "string"
+                                            },
+                                            "Access-Control-Allow-Methods": {
+                                                "type": "string"
+                                            },
+                                            "Access-Control-Allow-Headers": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                    "responses": {
+                                        "default": {
+                                            "statusCode": "200",
+                                            "responseParameters": {
+                                                "method.response.header.Access-Control-Allow-Methods": "'POST,GET,OPTIONS'",
+                                                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                                                "method.response.header.Access-Control-Allow-Origin": "'*'"
+                                            }
+                                        }
+                                    },
+                                    "passthroughBehavior": "when_no_match",
+                                    "requestTemplates": {
+                                        "application/json": "{\"statusCode\": 200}"
+                                    },
+                                    "type": "mock"
+                                }
+                            }
+                        },
+                        "/patient-data": {
+                            "get": {
+                                "produces": [
+                                    "application/json"
+                                ],
+                                "responses": {
+                                    "200": {
+                                        "description": "200 response",
+                                        "schema": {
+                                            "$ref": "#/definitions/Empty"
+                                        }
+                                    }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                    "uri": {"Fn::Sub": 
+                                        ["arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${__LambdaArn__}/invocations",
+                                        {
+                                            "__LambdaArn__": {"Fn::GetAtt": ["GWearCloudGET", "Arn"]}
+                                        }
+                                        ]
+                                    },
+                                    "responses": {
+                                        "default": {
+                                            "statusCode": "200"
+                                        }
+                                    },
+                                    "passthroughBehavior": "when_no_match",
+                                    "httpMethod": "POST",
+                                    "contentHandling": "CONVERT_TO_TEXT",
+                                    "type": "aws"
+                                }
+                            },
+                            "post": {
+                                "consumes": [
+                                    "application/json"
+                                ],
+                                "produces": [
+                                    "application/json"
+                                ],
+                                "parameters": [
+                                    {
+                                        "in": "body",
+                                        "name": "PatientData",
+                                        "required": true,
+                                        "schema": {
+                                            "$ref": "#/definitions/PatientData"
+                                        }
+                                    }
+                                ],
+                                "responses": {
+                                    "200": {
+                                        "description": "200 response",
+                                        "schema": {
+                                            "$ref": "#/definitions/Empty"
+                                        }
+                                    }
+                                },
+                                "security": [
+                                    {
+                                        "api_key": []
+                                    }
+                                ],
+                                "x-amazon-apigateway-integration": {
+                                    "uri": {"Fn::Sub": 
+                                        ["arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${__LambdaArn__}/invocations",
+                                        {
+                                            "__LambdaArn__": {"Fn::GetAtt": ["GWearCloudPOST", "Arn"]}
+                                        }
+                                        ]
+                                    },
+                                    "responses": {
+                                        "default": {
+                                            "statusCode": "200"
+                                        }
+                                    },
+                                    "passthroughBehavior": "when_no_match",
+                                    "httpMethod": "POST",
+                                    "requestTemplates": {
+                                        "application/json": "{\n	\"method\": \"$context.httpMethod\",\n	\"body\" : $input.json('$'),\n	\"headers\": {\n		#foreach($param in $input.params().header.keySet())\n		\"$param\": \"$util.escapeJavaScript($input.params().header.get($param))\" #if($foreach.hasNext),#end\n\n		#end\n	},\n	\"queryParams\": {\n		#foreach($param in $input.params().querystring.keySet())\n		\"$param\": \"$util.escapeJavaScript($input.params().querystring.get($param))\" #if($foreach.hasNext),#end\n\n		#end\n	},\n	\"pathParams\": {\n		#foreach($param in $input.params().path.keySet())\n		\"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n\n		#end\n	}	\n}"
+                                    },
+                                    "contentHandling": "CONVERT_TO_TEXT",
+                                    "type": "aws"
+                                }
+                            },
+                            "options": {
+                                "consumes": [
+                                    "application/json"
+                                ],
+                                "produces": [
+                                    "application/json"
+                                ],
+                                "responses": {
+                                    "200": {
+                                        "description": "200 response",
+                                        "schema": {
+                                            "$ref": "#/definitions/Empty"
+                                        },
+                                        "headers": {
+                                            "Access-Control-Allow-Origin": {
+                                                "type": "string"
+                                            },
+                                            "Access-Control-Allow-Methods": {
+                                                "type": "string"
+                                            },
+                                            "Access-Control-Allow-Headers": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                    "responses": {
+                                        "default": {
+                                            "statusCode": "200",
+                                            "responseParameters": {
+                                                "method.response.header.Access-Control-Allow-Methods": "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
+                                                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'",
+                                                "method.response.header.Access-Control-Allow-Origin": "'*'"
+                                            }
+                                        }
+                                    },
+                                    "passthroughBehavior": "when_no_match",
+                                    "requestTemplates": {
+                                        "application/json": "{\"statusCode\": 200}"
+                                    },
+                                    "type": "mock"
+                                }
+                            }
+                        }
+                    },
+                    "securityDefinitions": {
+                        "api_key": {
+                            "type": "apiKey",
+                            "name": "x-api-key",
+                            "in": "header"
+                        }
+                    },
+                    "definitions": {
+                        "Empty": {
+                            "type": "object",
+                            "title": "Empty Schema"
+                        },
+                        "PatientData": {
+                            "type": "object",
+                            "required": [
+                                "timestamp"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "type": "integer"
+                                },
+                                "timestamp": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "mac": {
+                                    "type": "string"
+                                },
+                                "sensor": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    }
+                                },
+                                "metric": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "Metadata": {
+        "AWS::CloudFormation::Designer": {
+            "bc138e54-d3fe-4240-9582-1712790b4e42": {
+                "size": {
+                    "width": 330,
+                    "height": 240
+                },
+                "position": {
+                    "x": 60,
+                    "y": 90
+                },
+                "z": 1,
+                "embeds": [
+                    "e21a12f8-e0c8-42ba-8ece-c29f5ab71067",
+                    "5868df31-8c47-4f90-b1d5-b9c9a7e34784"
+                ]
+            },
+            "8ddcb568-af3f-490e-b189-c9d2dbd495db": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 60,
+                    "y": 390
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "8f8e18f6-6b13-46f0-b18f-49b543d734c2": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 180,
+                    "y": 390
+                },
+                "z": 1,
+                "embeds": [],
+                "isassociatedwith": [
+                    "8ddcb568-af3f-490e-b189-c9d2dbd495db"
+                ]
+            },
+            "e21a12f8-e0c8-42ba-8ece-c29f5ab71067": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 90,
+                    "y": 150
+                },
+                "z": 2,
+                "parent": "bc138e54-d3fe-4240-9582-1712790b4e42",
+                "embeds": [],
+                "iscontainedinside": [
+                    "bc138e54-d3fe-4240-9582-1712790b4e42",
+                    "bc138e54-d3fe-4240-9582-1712790b4e42"
+                ]
+            },
+            "5868df31-8c47-4f90-b1d5-b9c9a7e34784": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 210,
+                    "y": 150
+                },
+                "z": 2,
+                "parent": "bc138e54-d3fe-4240-9582-1712790b4e42",
+                "embeds": [],
+                "isassociatedwith": [
+                    "e21a12f8-e0c8-42ba-8ece-c29f5ab71067"
+                ],
+                "iscontainedinside": [
+                    "bc138e54-d3fe-4240-9582-1712790b4e42",
+                    "bc138e54-d3fe-4240-9582-1712790b4e42"
+                ]
+            },
+            "f92971b0-7dce-489f-80ad-cd0dbdf6211b": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 300,
+                    "y": 390
+                },
+                "z": 1,
+                "embeds": [],
+                "isassociatedwith": [
+                    "8ddcb568-af3f-490e-b189-c9d2dbd495db"
+                ]
+            },
+            "7dcf69e7-8fd7-4bc5-b161-43cb48c33e94": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 450,
+                    "y": 90
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "c0c8956e-43f0-4b9c-80d7-fe99da2b523f": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 450,
+                    "y": 210
+                },
+                "z": 1,
+                "embeds": [],
+                "isassociatedwith": [
+                    "7dcf69e7-8fd7-4bc5-b161-43cb48c33e94"
+                ]
+            },
+            "03b0feb6-4dbe-402a-b355-6cbfb1cffa7e": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 450,
+                    "y": 330
+                },
+                "z": 1,
+                "embeds": [],
+                "isassociatedwith": [
+                    "7dcf69e7-8fd7-4bc5-b161-43cb48c33e94"
+                ]
+            },
+            "1406b0b9-c7a6-4cbb-a0f0-5b6ebb173846": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 390,
+                    "y": 420
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "10df573e-d67f-4594-bf67-91f5d53d8fcb": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 510,
+                    "y": 420
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "80ea2bab-70c0-40a6-a4f2-518ee8cd2e54": {
+                "size": {
+                    "width": 240,
+                    "height": 240
+                },
+                "position": {
+                    "x": 60,
+                    "y": 480
+                },
+                "z": 1,
+                "embeds": [
+                    "99fda0e8-f542-419e-bbe0-94cc0e759e8d"
+                ]
+            },
+            "99fda0e8-f542-419e-bbe0-94cc0e759e8d": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 90,
+                    "y": 540
+                },
+                "z": 2,
+                "parent": "80ea2bab-70c0-40a6-a4f2-518ee8cd2e54",
+                "embeds": [],
+                "isassociatedwith": [
+                    "1406b0b9-c7a6-4cbb-a0f0-5b6ebb173846"
+                ],
+                "iscontainedinside": [
+                    "80ea2bab-70c0-40a6-a4f2-518ee8cd2e54"
+                ]
+            },
+            "020befc9-09a8-45de-ba76-4160df15181d": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 360,
+                    "y": 540
+                },
+                "z": 1,
+                "embeds": []
+            }
+        }
+    }
+}
