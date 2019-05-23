@@ -1,46 +1,49 @@
-import psycopg2
+import requests
+import json
+
 import time
 import random
 
-conn_string = "dbname='gwear' user='gwear' host='gwear.cudt3dgpksxl.us-east-1.rds.amazonaws.com' port='5432' password='Prisms123!' sslmode='disable'"
+url = 'https://213xjpuh93.execute-api.us-east-1.amazonaws.com/beta'
+data = {
+    'id': 1,
+    'timestamp': [
+        1549775369
+    ],
+    'mac': 'abc123',
+    'sensor': 'test_sensor',
+    'value': [
+        9.6
+    ],
+    'metric': 'test_metric'
+}
+headers = {
+    'Content-Type': 'application/json',
+    'x-api-key':'TuAVwnAabd7MmZQ2fCVAX1KPCO1xXm7h6Of6cE9c'
+}
 
 try:
-    conn = psycopg2.connect(conn_string)
+    r = requests.get(url, headers=headers)
 
-    print "Database connection successful!"
+    print(r.status_code)
 
-    cursor = conn.cursor()
+    if r.status_code == requests.codes.ok:
+        print(r.content)
+    else:
+        print("Failure")
 
-    # Print out the current database
-    print "Current Database:"
+    r = requests.post(url, headers=headers, data=json.dumps(data))
 
-    cursor.execute("""SELECT * from patient_data""")
-    rows = cursor.fetchall()
-    
-    for row in rows:
-        print row
+    print(r.status_code)
 
+    if r.status_code == requests.codes.ok:
+        print(r.content)
+    else:
+        print("Failure")
 
-    # Add new row to the database
-    insert_statement = "INSERT INTO patient_data (time, pt_no, sensor_val) VALUES (%d, 1, %.2f);" % (int(time.time()), random.uniform(11.5, 12.5))
-    cursor.execute(insert_statement)
+    # # Add new row to the database
+    # insert_statement = "INSERT INTO patient_data (time, pt_no, sensor_val) VALUES (%d, 1, %.2f);" % (int(time.time()), random.uniform(11.5, 12.5))
+    # cursor.execute(insert_statement)
 
-    # Print out the new database
-    print "New Database:"
-
-    cursor.execute("""SELECT * from patient_data""")
-    rows = cursor.fetchall()
-
-    for row in rows:
-        print row
-
-    commit = raw_input("Do you want to commit this change?").lower()
-
-    if (commit == 'y'):
-        conn.commit()
-
-    # Close the connections when done
-    cursor.close()
-    conn.close()
 except Exception as e:
     print e
