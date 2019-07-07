@@ -1,5 +1,22 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters" : {
+        "S3BucketNameParam" : {
+            "Type" : "String",
+            "Default" : "gwearcloud-deployables",
+            "Description" : "Enter the name of the S3 bucket containing the Lambda deployment packages. Default is gwearcloud-deployables."
+        },
+        "RDSUsername" : {
+            "Type" : "String",
+            "Default" : "gwear",
+            "Description" : "Enter the database username to use. Default is gwear."
+        },
+        "RDSPassword" : {
+            "Type" : "String",
+            "Default" : "password",
+            "Description" : "Enter the database password to use. Default is password."
+        }
+    },
     "Resources": {
         "gwearpublicvpc": {
             "Type": "AWS::EC2::VPC",
@@ -63,8 +80,8 @@
                 "PubliclyAccessible": "true",
                 "StorageType": "gp2",
                 "BackupRetentionPeriod": "7",
-                "MasterUsername": "gwear",
-                "MasterUserPassword": "MyPassword",
+                "MasterUsername": { "Ref": "RDSUsername" },
+                "MasterUserPassword": { "Ref": "RDSPassword" },
                 "PreferredBackupWindow": "09:15-09:45",
                 "PreferredMaintenanceWindow": "mon:05:38-mon:06:08",
                 "DBName": "gwear",
@@ -208,36 +225,12 @@
                     "Ref": "sgPRISMS"
                 },
                 "IpProtocol": "tcp",
-                "FromPort": "8086",
-                "ToPort": "8086",
-                "CidrIp": "0.0.0.0/0"
-            }
-        },
-        "ingress3": {
-            "Type": "AWS::EC2::SecurityGroupIngress",
-            "Properties": {
-                "GroupId": {
-                    "Ref": "sgPRISMS"
-                },
-                "IpProtocol": "tcp",
                 "FromPort": "3000",
                 "ToPort": "3000",
                 "CidrIp": "0.0.0.0/0"
             }
         },
-        "ingress4": {
-            "Type": "AWS::EC2::SecurityGroupIngress",
-            "Properties": {
-                "GroupId": {
-                    "Ref": "sgPRISMS"
-                },
-                "IpProtocol": "tcp",
-                "FromPort": "8088",
-                "ToPort": "8088",
-                "CidrIp": "0.0.0.0/0"
-            }
-        },
-        "ingress5": {
+        "ingress3": {
             "Type": "AWS::EC2::SecurityGroupIngress",
             "Properties": {
                 "GroupId": {
@@ -273,8 +266,8 @@
             "Type": "AWS::Lambda::Function",
             "Properties": {
                 "Code": {
-                    "S3Bucket": "gwearcloud-deployables",
-                    "S3Key": "GWearCloud-GET.zip"
+                    "S3Bucket": { "Ref": "S3BucketNameParam" },
+                    "S3Key": "GWearCloud-POST.zip"
                 },
                 "Description": "",
                 "Tags": [
@@ -287,8 +280,10 @@
                 "Environment": {
                     "Variables": {
                         "PostgreSQL_URL": {
-                            "Fn::Sub": ["postgres://gwear:MyPassword@${__EndpointURL__}:5432/gwear",
+                            "Fn::Sub": ["postgres://${__RDSUsername__}:${__RDSPassword__}@${__EndpointURL__}:5432/gwear",
                                 {
+                                "__RDSUsername__": { "Ref": "RDSUsername" },
+                                "__RDSPassword__": { "Ref": "RDSPassword" },
                                 "__EndpointURL__": {"Fn::GetAtt": ["rdsgwear", "Endpoint.Address"]}
                                 }
                             ]
@@ -388,7 +383,7 @@
             "Type": "AWS::Lambda::Function",
             "Properties": {
                 "Code": {
-                    "S3Bucket": "gwearcloud-deployables",
+                    "S3Bucket": { "Ref": "S3BucketNameParam" },
                     "S3Key": "GWearCloud-GET.zip"
                 },
                 "Description": "",
@@ -402,8 +397,10 @@
                 "Environment": {
                     "Variables": {
                         "PostgreSQL_URL": {
-                            "Fn::Sub": ["postgres://gwear:MyPassword@${__EndpointURL__}:5432/gwear",
+                            "Fn::Sub": ["postgres://${__RDSUsername__}:${__RDSPassword__}@${__EndpointURL__}:5432/gwear",
                                 {
+                                "__RDSUsername__": { "Ref": "RDSUsername" },
+                                "__RDSPassword__": { "Ref": "RDSPassword" },
                                 "__EndpointURL__": {"Fn::GetAtt": ["rdsgwear", "Endpoint.Address"]}
                                 }
                             ]
