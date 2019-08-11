@@ -1,0 +1,5 @@
+ 
+Quick-Installation Guide
+========================
+
+This installation guide is meant for those who already understand (or are not interested in undestanding) each component of the GWearCloud stack. For an installation guide with a full explanation of each step, go to 

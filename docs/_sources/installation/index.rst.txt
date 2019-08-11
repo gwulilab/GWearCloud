@@ -1,0 +1,13 @@
+Installation
+============
+
+.. toctree::
+   :maxdepth: 2
+	 
+   installation
+
+The following installation guides are meant to help you get started with the GWearCloud stack.
+
+If you are looking to quickly get started with the cloud stack, use the quick installation guide.
+
+If you are looking for a full explanation of what each installation step is doing, use the full installation guide.
