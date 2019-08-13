@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Stack Components" href="components.html" />
     <link rel="prev" title="Welcome to GWearCloud’s documentation!" href="index.html" /> 
 </head>
 
@@ -81,7 +82,20 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#s3-bucket-setup">S3 Bucket Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-the-bucket">Creating the Bucket</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-the-deployables">Adding the Deployables</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cloudformation">CloudFormation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#postgresql-setup">PostgreSQL Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-visualisation-grafana-setup">Data Visualisation (Grafana) Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Stack Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="android-api.html">Android API Documentation</a></li>
 </ul>
 
             
@@ -148,7 +162,54 @@
             
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>The following installation guide is meant to install the full GWearCloud stack.</p>
+<p>The following installation guide is meant to install the full GWearCloud stack. The two main components of the GWear system, the REST API and the data visualisation, is set up on AWS using the following steps. Note that all resources can be set up with the AWS Free Tier.</p>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>This user manual assumes the following:</p>
+<ul class="simple">
+<li><p>The implementer has a valid AWS account</p></li>
+<li><p>The implementer has prior knowledge of Android app development</p></li>
+<li><p>The implementer has prior knowledge of git and GitHub</p></li>
+</ul>
+</div>
+<div class="section" id="s3-bucket-setup">
+<h2>S3 Bucket Setup<a class="headerlink" href="#s3-bucket-setup" title="Permalink to this headline">¶</a></h2>
+<p>For the CloudFormation template to work, there needs to be a valid S3 bucket to pull the Lambda deployment package from. If you are deploying your system on us-east-1 (N. Virginia), then the template already is linking to a valid S3 bucket. If you are deploying to any other region, the following instructions can be used to set up the bucket.</p>
+<div class="section" id="creating-the-bucket">
+<h3>Creating the Bucket<a class="headerlink" href="#creating-the-bucket" title="Permalink to this headline">¶</a></h3>
+<p>First, download the latest Lambda deployment zip files from <a class="reference external" href="https://github.com/gwulilab/GWearCloud/releases">https://github.com/gwulilab/GWearCloud/releases</a>. The files should be named “GWearCloud-GET.zip” and “GWearCloud-POST.zip”.</p>
+<p>Navigate to Amazon S3 and click “Create bucket”: <a class="reference external" href="https://s3.console.aws.amazon.com/s3">https://s3.console.aws.amazon.com/s3</a></p>
+<p>Type in a bucket name and remember it for the next step. Choose the same region as the one you will be deploying GWearCloud. Then click “Next”.</p>
+<p>Leave all “Configure options” settings default. Click “Next”.</p>
+<p>Uncheck “Block all public access”. Click “Next”.</p>
+<p>Review all of your settings and click “Create bucket”.</p>
+</div>
+<div class="section" id="adding-the-deployables">
+<h3>Adding the Deployables<a class="headerlink" href="#adding-the-deployables" title="Permalink to this headline">¶</a></h3>
+<p>Click “Upload”.</p>
+<p>In the next window, add both the “GWearCloud-GET.zip” and “GWearCloud-POST.zip” files. Then click “Next”.</p>
+<p>Under “Manage public permissions” select “Grant public read access to this object(s)”. Click “Upload”.</p>
+<p>If everything was done correctly, you should see a screen similar to above.</p>
+</div>
+</div>
+<div class="section" id="cloudformation">
+<h2>CloudFormation<a class="headerlink" href="#cloudformation" title="Permalink to this headline">¶</a></h2>
+<p>Navigate to <a class="reference external" href="https://console.aws.amazon.com/cloudformation/">https://console.aws.amazon.com/cloudformation/</a> to access the CloudFormation console.</p>
+<p>Click on “Create new stack”.</p>
+<p>Select “Upload a template to Amazon S3” and browse for the GWear.json template file. Then click “Next”.</p>
+<p>Enter your desired stack name for your REST API. Then fill out the parameters for your stack. The most important to fill out is the “S3BucketNameParam” if you had to create a new bucket for your region. Then click “Next”.</p>
+<p>Edit the stack settings as desired. Then click “Next”. The default settings are fine for most cases.</p>
+<p>The final window summarises the stack you are about to create. If you are satisfied with every setting, click “Create”.</p>
+</div>
+<div class="section" id="postgresql-setup">
+<h2>PostgreSQL Setup<a class="headerlink" href="#postgresql-setup" title="Permalink to this headline">¶</a></h2>
+<p>Currently, the generated database instance does not automatically create a database table or schema. The following should be set up manually using a SQL client (such as pgadmin: <a class="reference external" href="https://www.pgadmin.org/">https://www.pgadmin.org/</a>).</p>
+<p>Table Name: patient_data</p>
+<p>Schema:</p>
+</div>
+<div class="section" id="data-visualisation-grafana-setup">
+<h2>Data Visualisation (Grafana) Setup<a class="headerlink" href="#data-visualisation-grafana-setup" title="Permalink to this headline">¶</a></h2>
+</div>
 </div>
 
 
@@ -158,6 +219,8 @@
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="components.html" class="btn btn-neutral float-right" title="Stack Components" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral float-left" title="Welcome to GWearCloud’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

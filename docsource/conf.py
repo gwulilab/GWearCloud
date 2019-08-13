@@ -31,6 +31,8 @@ release = '0.9.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autosectionlabel',
+    'sphinx.ext.intersphinx',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -59,3 +61,6 @@ html_static_path = ['_static']
 #
 # source_suffix = ['.rst', '.md']
 source_suffix = '.rst'
+
+# The master toctree document.
+master_doc = 'index'
