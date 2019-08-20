@@ -1,0 +1,10 @@
+language: python
+
+install:
+- pip install awscli
+
+script:
+- aws cloudformation validate-template --template-body file://GWearCloud/GWearCF.json
+
+after_success:
+- echo "CloudFormation template validated!"
