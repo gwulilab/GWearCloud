@@ -18,6 +18,31 @@
         }
     },
     "Resources": {
+        "RoleRDSAccess": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Service": [
+                        "lambda.amazonaws.com",
+                        "ec2.amazonaws.com"
+                        ]
+                    },
+                    "Action": [
+                        "sts:AssumeRole"
+                    ]
+                    }
+                ]
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+                ]
+            }
+        },
         "gwearpublicvpc": {
             "Type": "AWS::EC2::VPC",
             "Properties": {
@@ -115,6 +140,12 @@
                 "CidrBlock": "172.31.0.0/20",
                 "VpcId": {
                     "Ref": "gwearpublicvpc"
+                },
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        "0",
+                        { "Fn::GetAZs": "" }
+                    ]
                 }
             }
         },
@@ -124,6 +155,12 @@
                 "CidrBlock": "172.31.16.0/20",
                 "VpcId": {
                     "Ref": "gwearpublicvpc"
+                },
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        "1",
+                        { "Fn::GetAZs": "" }
+                    ]
                 }
             }
         },
@@ -133,6 +170,12 @@
                 "CidrBlock": "172.31.32.0/20",
                 "VpcId": {
                     "Ref": "gwearpublicvpc"
+                },
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        "2",
+                        { "Fn::GetAZs": "" }
+                    ]
                 }
             }
         },
@@ -142,6 +185,12 @@
                 "CidrBlock": "172.31.48.0/20",
                 "VpcId": {
                     "Ref": "gwearpublicvpc"
+                },
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        "3",
+                        { "Fn::GetAZs": "" }
+                    ]
                 }
             }
         },
@@ -151,6 +200,12 @@
                 "CidrBlock": "172.31.64.0/20",
                 "VpcId": {
                     "Ref": "gwearpublicvpc"
+                },
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        "4",
+                        { "Fn::GetAZs": "" }
+                    ]
                 }
             }
         },
@@ -160,6 +215,12 @@
                 "CidrBlock": "172.31.80.0/20",
                 "VpcId": {
                     "Ref": "gwearpublicvpc"
+                },
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        "5",
+                        { "Fn::GetAZs": "" }
+                    ]
                 }
             }
         },
@@ -291,7 +352,7 @@
                     }
                 },
                 "Handler": "index.handler",
-                "Role": "arn:aws:iam::583672402817:role/lambda_rds_access",
+                "Role": {"Fn::GetAtt": ["RoleRDSAccess", "Arn"]},
                 "Timeout": 3,
                 "Runtime": "nodejs8.10"
             },
@@ -408,7 +469,7 @@
                     }
                 },
                 "Handler": "index.handler",
-                "Role": "arn:aws:iam::583672402817:role/lambda_rds_access",
+                "Role": {"Fn::GetAtt": ["RoleRDSAccess", "Arn"]},
                 "Timeout": 3,
                 "Runtime": "nodejs8.10"
             },
@@ -788,6 +849,18 @@
                     }
                 }
             }
+        }
+    },
+    "Outputs": {
+        "restApiUrl": {
+            "Description": "Endpoint URL for the GWearCloud REST API",
+            "Value": {
+                "Fn::Sub": "https://${GWearCloudApi}.execute-api.${AWS::Region}.amazonaws.com/beta"
+            }
+        },
+        "grafanaUrl": {
+            "Description": "URL for Grafana access",
+            "Value": ""
         }
     },
     "Metadata": {
