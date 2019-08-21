@@ -354,7 +354,16 @@
                 "Handler": "index.handler",
                 "Role": {"Fn::GetAtt": ["RoleRDSAccess", "Arn"]},
                 "Timeout": 3,
-                "Runtime": "nodejs8.10"
+                "Runtime": "nodejs8.10",
+                "VpcConfig": {
+                    "SecurityGroupIds": [
+                        { "Fn::GetAtt": ["sgPRISMS", "GroupId"] }
+                    ],
+                    "SubnetIds": [
+                        { "Ref": "gwearsubnet1" },
+                        { "Ref": "gwearsubnet2" }
+                    ]
+                }
             },
             "Metadata": {
                 "AWS::CloudFormation::Designer": {
@@ -471,7 +480,16 @@
                 "Handler": "index.handler",
                 "Role": {"Fn::GetAtt": ["RoleRDSAccess", "Arn"]},
                 "Timeout": 3,
-                "Runtime": "nodejs8.10"
+                "Runtime": "nodejs8.10",
+                "VpcConfig": {
+                    "SecurityGroupIds": [
+                        { "Fn::GetAtt": ["sgPRISMS", "GroupId"] }
+                    ],
+                    "SubnetIds": [
+                        { "Ref": "gwearsubnet1" },
+                        { "Ref": "gwearsubnet2" }
+                    ]
+                }
             },
             "Metadata": {
                 "AWS::CloudFormation::Designer": {
@@ -824,10 +842,7 @@
                                     "type": "integer"
                                 },
                                 "timestamp": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "integer"
-                                    }
+                                    "type": "integer"
                                 },
                                 "mac": {
                                     "type": "string"
@@ -836,10 +851,7 @@
                                     "type": "string"
                                 },
                                 "value": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "number"
-                                    }
+                                    "type": "number"
                                 },
                                 "metric": {
                                     "type": "string"

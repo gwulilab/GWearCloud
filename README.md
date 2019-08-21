@@ -19,5 +19,17 @@ Every file in the repository in archive form.
 ## Installation
 Full installation instructions can be found [in the wiki](https://github.com/gwulilab/GWearCloud/wiki/Installation).
 
+## Example REST API Data Body
+```json
+{
+    "metric" : "test_measurement",
+    "sensor" : "test_sensor",
+    "id" : 1,
+    "value" : 12.5,
+    "mac" : "abc123",
+    "timestamp" : 1566364870
+}
+```
+
 ## Contributing
 Coming soon.
