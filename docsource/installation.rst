@@ -16,7 +16,12 @@ For the CloudFormation template to work, there needs to be a valid S3 bucket to 
 
 Creating the Bucket
 ~~~~~~~~~~~~~~~~~~~
-First, download the latest Lambda deployment zip files from https://github.com/gwulilab/GWearCloud/releases. The files should be named “GWearCloud-GET.zip” and “GWearCloud-POST.zip”.
+First, download the latest Lambda deployment zip files from https://github.com/gwulilab/GWearCloud/releases. 
+
+The files should be named:
+- GWearCloud-GET.zip
+- GWearCloud-POST.zip
+- GWearCloud-RDS-Setup.zip
 
 Navigate to Amazon S3 and click “Create bucket”: https://s3.console.aws.amazon.com/s3
 
@@ -32,7 +37,7 @@ Adding the Deployables
 ~~~~~~~~~~~~~~~~~~~~~~
 Click “Upload”.
 
-In the next window, add both the “GWearCloud-GET.zip” and “GWearCloud-POST.zip” files. Then click “Next”.
+In the next window, add all zip files to the upload. Then click “Next”.
 
 Under “Manage public permissions” select “Grant public read access to this object(s)”. Click “Upload”.
 
@@ -50,16 +55,23 @@ Enter your desired stack name for your REST API. Then fill out the parameters fo
 
 Edit the stack settings as desired. Then click “Next”. The default settings are fine for most cases.
 
-The final window summarises the stack you are about to create. If you are satisfied with every setting, click “Create”.
+The final window summarises the stack you are about to create. If you are satisfied with every setting, click “Create”. The average spin up time should be between 10-20 minutes (depending on customisations, internet speeds, etc). The system is done generating when the stack status is changed to "Create_Complete".
+
+Outputs
+~~~~~~~
+The following outputs will be found in the "Outputs" tab:
+1. grafanaUrl - The URl to use for navigating to the data visualisation website
+2. postgreslUrl - The URL to use to connect Grafana to the cloud database
+3. restApiUrl - The URL to use when interfacing between an IoT gateway device and the GWearCloud system
 
 PostgreSQL Setup
 ----------------
 Currently, the generated database instance does not automatically create a database table or schema. CLoudFormation will create a Lambda function called "RDS-Setup" that can be invoked to create the database table. The following steps should be taken to do that:
 
 1. Navigate to https://console.aws.amazon.com/lambda
-2. Click "RDS-Setup"
+2. Click the function that includes "RdsSetup" in the name
 3. Click "Test"
-4. The default test setup is fine. Click "Create"
+4. The default test setup is fine. Give it a name and click "Create"
 5. Click "Save" then click "Test"
 
 If you see "Execution result: success", then your database is now fully functional for the GWearCloud system.
