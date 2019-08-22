@@ -9,7 +9,6 @@ This user manual assumes the following:
 
 * The implementer has a valid AWS account
 * The implementer has prior knowledge of Android app development
-* The implementer has prior knowledge of git and GitHub
 
 S3 Bucket Setup
 ---------------
@@ -45,7 +44,7 @@ Navigate to https://console.aws.amazon.com/cloudformation/ to access the CloudFo
 
 Click on “Create new stack”.
 
-Select “Upload a template to Amazon S3” and browse for the GWear.json template file. Then click “Next”.
+Select “Upload a template to Amazon S3” and browse for the GWearCF.json template file. Then click “Next”.
 
 Enter your desired stack name for your REST API. Then fill out the parameters for your stack. The most important to fill out is the “S3BucketNameParam” if you had to create a new bucket for your region. Then click “Next”.
 
@@ -55,11 +54,20 @@ The final window summarises the stack you are about to create. If you are satisf
 
 PostgreSQL Setup
 ----------------
-Currently, the generated database instance does not automatically create a database table or schema. The following should be set up manually using a SQL client (such as pgadmin: https://www.pgadmin.org/).
+Currently, the generated database instance does not automatically create a database table or schema. CLoudFormation will create a Lambda function called "RDS-Setup" that can be invoked to create the database table. The following steps should be taken to do that:
 
-Table Name: patient_data
+1. Navigate to https://console.aws.amazon.com/lambda
+2. Click "RDS-Setup"
+3. Click "Test"
+4. The default test setup is fine. Click "Create"
+5. Click "Save" then click "Test"
 
-Schema:
+If you see "Execution result: success", then your database is now fully functional for the GWearCloud system.
 
 Data Visualisation (Grafana) Setup
 ----------------------------------
+The CloudFormation template will automatically create a Grafana web app instance. However, Grafana will still need to be configured from its web interface.
+
+Instructions on gettings started with Grafana can be found at https://grafana.com/docs/guides/getting_started/
+
+Instructions for connecting your PostgreSQL database to Grafana can be found at https://grafana.com/docs/features/datasources/postgres/

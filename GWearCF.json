@@ -1,20 +1,20 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Parameters" : {
-        "S3BucketNameParam" : {
-            "Type" : "String",
-            "Default" : "gwearcloud-deployables",
-            "Description" : "Enter the name of the S3 bucket containing the Lambda deployment packages. Default is gwearcloud-deployables."
+    "Parameters": {
+        "S3BucketNameParam": {
+            "Type": "String",
+            "Default": "gwearcloud-deployables",
+            "Description": "Enter the name of the S3 bucket containing the Lambda deployment packages. Default is gwearcloud-deployables."
         },
-        "RDSUsername" : {
-            "Type" : "String",
-            "Default" : "gwear",
-            "Description" : "Enter the database username to use. Default is gwear."
+        "RDSUsername": {
+            "Type": "String",
+            "Default": "gwear",
+            "Description": "Enter the database username to use. Default is gwear."
         },
-        "RDSPassword" : {
-            "Type" : "String",
-            "Default" : "password",
-            "Description" : "Enter the database password to use. Default is password."
+        "RDSPassword": {
+            "Type": "String",
+            "Default": "password",
+            "Description": "Enter the database password to use. Default is password."
         }
     },
     "Resources": {
@@ -22,31 +22,60 @@
             "Type": "AWS::IAM::Role",
             "Properties": {
                 "AssumeRolePolicyDocument": {
-                "Version": "2012-10-17",
-                "Statement": [
-                    {
-                    "Effect": "Allow",
-                    "Principal": {
-                        "Service": [
-                        "lambda.amazonaws.com",
-                        "ec2.amazonaws.com"
-                        ]
-                    },
-                    "Action": [
-                        "sts:AssumeRole"
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "lambda.amazonaws.com",
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
                     ]
-                    }
-                ]
                 },
                 "ManagedPolicyArns": [
                     "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "a28e8b25-9170-46c9-b037-f8f36f75d9cf"
+                }
+            }
+        },
+        "RoleEcsInstance": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
                 ]
             }
         },
         "gwearpublicvpc": {
             "Type": "AWS::EC2::VPC",
             "Properties": {
-                "CidrBlock": "172.31.0.0/16",
+                "CidrBlock": "10.0.0.0/16",
                 "InstanceTenancy": "default",
                 "EnableDnsSupport": "true",
                 "EnableDnsHostnames": "true",
@@ -56,22 +85,37 @@
                         "Value": "GWearCloud-Public"
                     }
                 ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "3509a5de-c1a3-4b97-aa7e-64c7a782237b"
+                }
             }
         },
         "gwearinternetgateway": {
             "Type": "AWS::EC2::InternetGateway",
-            "Properties": {}
+            "Properties": {},
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "17bc4478-1aa1-48bb-af3a-b9404e084415"
+                }
+            }
         },
         "gw1": {
-          "Type": "AWS::EC2::VPCGatewayAttachment",
-          "Properties": {
-            "VpcId": {
-              "Ref": "gwearpublicvpc"
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "gwearpublicvpc"
+                },
+                "InternetGatewayId": {
+                    "Ref": "gwearinternetgateway"
+                }
             },
-            "InternetGatewayId": {
-              "Ref": "gwearinternetgateway"
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "79b37fc0-9716-47e3-8c69-bdfa7a27514f"
+                }
             }
-          }
         },
         "gwearroutetable": {
             "Type": "AWS::EC2::RouteTable",
@@ -79,20 +123,30 @@
                 "VpcId": {
                     "Ref": "gwearpublicvpc"
                 }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "b0e130a5-879a-485f-b41d-4b38e37a209e"
+                }
             }
         },
         "route1": {
-          "Type": "AWS::EC2::Route",
-          "Properties": {
-            "DestinationCidrBlock": "0.0.0.0/0",
-            "RouteTableId": {
-              "Ref": "gwearroutetable"
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "RouteTableId": {
+                    "Ref": "gwearroutetable"
+                },
+                "GatewayId": {
+                    "Ref": "gwearinternetgateway"
+                }
             },
-            "GatewayId": {
-              "Ref": "gwearinternetgateway"
+            "DependsOn": "gw1",
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "a8ab3214-52fe-49e4-9303-65786d790437"
+                }
             }
-          },
-          "DependsOn": "gw1"
         },
         "rdsgwear": {
             "Type": "AWS::RDS::DBInstance",
@@ -105,8 +159,12 @@
                 "PubliclyAccessible": "true",
                 "StorageType": "gp2",
                 "BackupRetentionPeriod": "7",
-                "MasterUsername": { "Ref": "RDSUsername" },
-                "MasterUserPassword": { "Ref": "RDSPassword" },
+                "MasterUsername": {
+                    "Ref": "RDSUsername"
+                },
+                "MasterUserPassword": {
+                    "Ref": "RDSPassword"
+                },
                 "PreferredBackupWindow": "09:15-09:45",
                 "PreferredMaintenanceWindow": "mon:05:38-mon:06:08",
                 "DBName": "gwear",
@@ -137,90 +195,132 @@
         "gwearsubnet1": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
-                "CidrBlock": "172.31.0.0/20",
+                "CidrBlock": "10.0.0.0/20",
                 "VpcId": {
                     "Ref": "gwearpublicvpc"
                 },
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "0",
-                        { "Fn::GetAZs": "" }
+                        {
+                            "Fn::GetAZs": ""
+                        }
                     ]
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "e162b163-95ac-4050-9e87-0dabfe2bf29d"
                 }
             }
         },
         "gwearsubnet2": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
-                "CidrBlock": "172.31.16.0/20",
+                "CidrBlock": "10.0.16.0/20",
                 "VpcId": {
                     "Ref": "gwearpublicvpc"
                 },
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "1",
-                        { "Fn::GetAZs": "" }
+                        {
+                            "Fn::GetAZs": ""
+                        }
                     ]
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "c2ed2836-1948-437d-af15-352705948eef"
                 }
             }
         },
         "gwearsubnet3": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
-                "CidrBlock": "172.31.32.0/20",
+                "CidrBlock": "10.0.32.0/20",
                 "VpcId": {
                     "Ref": "gwearpublicvpc"
                 },
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "2",
-                        { "Fn::GetAZs": "" }
+                        {
+                            "Fn::GetAZs": ""
+                        }
                     ]
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "1a3dcc75-031e-42ee-8f0f-9aa37946fdeb"
                 }
             }
         },
         "gwearsubnet4": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
-                "CidrBlock": "172.31.48.0/20",
+                "CidrBlock": "10.0.48.0/20",
                 "VpcId": {
                     "Ref": "gwearpublicvpc"
                 },
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "3",
-                        { "Fn::GetAZs": "" }
+                        {
+                            "Fn::GetAZs": ""
+                        }
                     ]
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "5033dc7f-d6a7-4b05-ac8d-551a1ff98995"
                 }
             }
         },
         "gwearsubnet5": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
-                "CidrBlock": "172.31.64.0/20",
+                "CidrBlock": "10.0.64.0/20",
                 "VpcId": {
                     "Ref": "gwearpublicvpc"
                 },
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "4",
-                        { "Fn::GetAZs": "" }
+                        {
+                            "Fn::GetAZs": ""
+                        }
                     ]
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "ebefb557-7d3f-4942-a02b-9d03ea401ffd"
                 }
             }
         },
         "gwearsubnet6": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
-                "CidrBlock": "172.31.80.0/20",
+                "CidrBlock": "10.0.80.0/20",
                 "VpcId": {
                     "Ref": "gwearpublicvpc"
                 },
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "5",
-                        { "Fn::GetAZs": "" }
+                        {
+                            "Fn::GetAZs": ""
+                        }
                     ]
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "aa5da46c-c897-4965-80b3-bc942b65e0c0"
                 }
             }
         },
@@ -229,12 +329,24 @@
             "Properties": {
                 "DBSubnetGroupDescription": "default",
                 "SubnetIds": [
-                    { "Ref": "gwearsubnet1" },
-                    { "Ref": "gwearsubnet2" },
-                    { "Ref": "gwearsubnet3" },
-                    { "Ref": "gwearsubnet4" },
-                    { "Ref": "gwearsubnet5" },
-                    { "Ref": "gwearsubnet6" }
+                    {
+                        "Ref": "gwearsubnet1"
+                    },
+                    {
+                        "Ref": "gwearsubnet2"
+                    },
+                    {
+                        "Ref": "gwearsubnet3"
+                    },
+                    {
+                        "Ref": "gwearsubnet4"
+                    },
+                    {
+                        "Ref": "gwearsubnet5"
+                    },
+                    {
+                        "Ref": "gwearsubnet6"
+                    }
                 ]
             },
             "Metadata": {
@@ -243,11 +355,91 @@
                 }
             }
         },
+        "gwearSubnetAssoc1" : {
+
+            "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+
+            "Properties" : {
+
+                "SubnetId" : { "Ref" : "gwearsubnet1" },
+
+                "RouteTableId" : { "Ref" : "gwearroutetable" }
+
+            }
+
+        },
+        "gwearSubnetAssoc2" : {
+
+            "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+
+            "Properties" : {
+
+                "SubnetId" : { "Ref" : "gwearsubnet2" },
+
+                "RouteTableId" : { "Ref" : "gwearroutetable" }
+
+            }
+
+        },
+        "gwearSubnetAssoc3" : {
+
+            "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+
+            "Properties" : {
+
+                "SubnetId" : { "Ref" : "gwearsubnet3" },
+
+                "RouteTableId" : { "Ref" : "gwearroutetable" }
+
+            }
+
+        },
+        "gwearSubnetAssoc4" : {
+
+            "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+
+            "Properties" : {
+
+                "SubnetId" : { "Ref" : "gwearsubnet4" },
+
+                "RouteTableId" : { "Ref" : "gwearroutetable" }
+
+            }
+
+        },
+        "gwearSubnetAssoc5" : {
+
+            "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+
+            "Properties" : {
+
+                "SubnetId" : { "Ref" : "gwearsubnet5" },
+
+                "RouteTableId" : { "Ref" : "gwearroutetable" }
+
+            }
+
+        },
+        "gwearSubnetAssoc6" : {
+
+            "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+
+            "Properties" : {
+
+                "SubnetId" : { "Ref" : "gwearsubnet6" },
+
+                "RouteTableId" : { "Ref" : "gwearroutetable" }
+
+            }
+
+        },
         "sgPRISMS": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
                 "GroupDescription": "Security group for PRISMS server",
-                "VpcId": { "Ref": "gwearpublicvpc" }
+                "VpcId": {
+                    "Ref": "gwearpublicvpc"
+                }
             },
             "Metadata": {
                 "AWS::CloudFormation::Designer": {
@@ -259,7 +451,9 @@
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
                 "GroupDescription": "PRISMS security group for internal resources",
-                "VpcId": { "Ref": "gwearpublicvpc" }
+                "VpcId": {
+                    "Ref": "gwearpublicvpc"
+                }
             },
             "Metadata": {
                 "AWS::CloudFormation::Designer": {
@@ -327,7 +521,9 @@
             "Type": "AWS::Lambda::Function",
             "Properties": {
                 "Code": {
-                    "S3Bucket": { "Ref": "S3BucketNameParam" },
+                    "S3Bucket": {
+                        "Ref": "S3BucketNameParam"
+                    },
                     "S3Key": "GWearCloud-POST.zip"
                 },
                 "Description": "",
@@ -341,27 +537,51 @@
                 "Environment": {
                     "Variables": {
                         "PostgreSQL_URL": {
-                            "Fn::Sub": ["postgres://${__RDSUsername__}:${__RDSPassword__}@${__EndpointURL__}:5432/gwear",
+                            "Fn::Sub": [
+                                "postgres://${__RDSUsername__}:${__RDSPassword__}@${__EndpointURL__}:5432/gwear",
                                 {
-                                "__RDSUsername__": { "Ref": "RDSUsername" },
-                                "__RDSPassword__": { "Ref": "RDSPassword" },
-                                "__EndpointURL__": {"Fn::GetAtt": ["rdsgwear", "Endpoint.Address"]}
+                                    "__RDSUsername__": {
+                                        "Ref": "RDSUsername"
+                                    },
+                                    "__RDSPassword__": {
+                                        "Ref": "RDSPassword"
+                                    },
+                                    "__EndpointURL__": {
+                                        "Fn::GetAtt": [
+                                            "rdsgwear",
+                                            "Endpoint.Address"
+                                        ]
+                                    }
                                 }
                             ]
                         }
                     }
                 },
                 "Handler": "index.handler",
-                "Role": {"Fn::GetAtt": ["RoleRDSAccess", "Arn"]},
+                "Role": {
+                    "Fn::GetAtt": [
+                        "RoleRDSAccess",
+                        "Arn"
+                    ]
+                },
                 "Timeout": 3,
                 "Runtime": "nodejs8.10",
                 "VpcConfig": {
                     "SecurityGroupIds": [
-                        { "Fn::GetAtt": ["sgPRISMS", "GroupId"] }
+                        {
+                            "Fn::GetAtt": [
+                                "sgPRISMS",
+                                "GroupId"
+                            ]
+                        }
                     ],
                     "SubnetIds": [
-                        { "Ref": "gwearsubnet1" },
-                        { "Ref": "gwearsubnet2" }
+                        {
+                            "Ref": "gwearsubnet1"
+                        },
+                        {
+                            "Ref": "gwearsubnet2"
+                        }
                     ]
                 }
             },
@@ -453,7 +673,9 @@
             "Type": "AWS::Lambda::Function",
             "Properties": {
                 "Code": {
-                    "S3Bucket": { "Ref": "S3BucketNameParam" },
+                    "S3Bucket": {
+                        "Ref": "S3BucketNameParam"
+                    },
                     "S3Key": "GWearCloud-GET.zip"
                 },
                 "Description": "",
@@ -467,27 +689,51 @@
                 "Environment": {
                     "Variables": {
                         "PostgreSQL_URL": {
-                            "Fn::Sub": ["postgres://${__RDSUsername__}:${__RDSPassword__}@${__EndpointURL__}:5432/gwear",
+                            "Fn::Sub": [
+                                "postgres://${__RDSUsername__}:${__RDSPassword__}@${__EndpointURL__}:5432/gwear",
                                 {
-                                "__RDSUsername__": { "Ref": "RDSUsername" },
-                                "__RDSPassword__": { "Ref": "RDSPassword" },
-                                "__EndpointURL__": {"Fn::GetAtt": ["rdsgwear", "Endpoint.Address"]}
+                                    "__RDSUsername__": {
+                                        "Ref": "RDSUsername"
+                                    },
+                                    "__RDSPassword__": {
+                                        "Ref": "RDSPassword"
+                                    },
+                                    "__EndpointURL__": {
+                                        "Fn::GetAtt": [
+                                            "rdsgwear",
+                                            "Endpoint.Address"
+                                        ]
+                                    }
                                 }
                             ]
                         }
                     }
                 },
                 "Handler": "index.handler",
-                "Role": {"Fn::GetAtt": ["RoleRDSAccess", "Arn"]},
+                "Role": {
+                    "Fn::GetAtt": [
+                        "RoleRDSAccess",
+                        "Arn"
+                    ]
+                },
                 "Timeout": 3,
                 "Runtime": "nodejs8.10",
                 "VpcConfig": {
                     "SecurityGroupIds": [
-                        { "Fn::GetAtt": ["sgPRISMS", "GroupId"] }
+                        {
+                            "Fn::GetAtt": [
+                                "sgPRISMS",
+                                "GroupId"
+                            ]
+                        }
                     ],
                     "SubnetIds": [
-                        { "Ref": "gwearsubnet1" },
-                        { "Ref": "gwearsubnet2" }
+                        {
+                            "Ref": "gwearsubnet1"
+                        },
+                        {
+                            "Ref": "gwearsubnet2"
+                        }
                     ]
                 }
             },
@@ -564,11 +810,17 @@
                                     }
                                 ],
                                 "x-amazon-apigateway-integration": {
-                                    "uri": {"Fn::Sub": 
-                                        ["arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${__LambdaArn__}/invocations",
-                                        {
-                                            "__LambdaArn__": {"Fn::GetAtt": ["GWearCloudGET", "Arn"]}
-                                        }
+                                    "uri": {
+                                        "Fn::Sub": [
+                                            "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${__LambdaArn__}/invocations",
+                                            {
+                                                "__LambdaArn__": {
+                                                    "Fn::GetAtt": [
+                                                        "GWearCloudGET",
+                                                        "Arn"
+                                                    ]
+                                                }
+                                            }
                                         ]
                                     },
                                     "responses": {
@@ -621,11 +873,17 @@
                                     }
                                 ],
                                 "x-amazon-apigateway-integration": {
-                                    "uri": {"Fn::Sub": 
-                                        ["arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${__LambdaArn__}/invocations",
-                                        {
-                                            "__LambdaArn__": {"Fn::GetAtt": ["GWearCloudPOST", "Arn"]}
-                                        }
+                                    "uri": {
+                                        "Fn::Sub": [
+                                            "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${__LambdaArn__}/invocations",
+                                            {
+                                                "__LambdaArn__": {
+                                                    "Fn::GetAtt": [
+                                                        "GWearCloudPOST",
+                                                        "Arn"
+                                                    ]
+                                                }
+                                            }
                                         ]
                                     },
                                     "responses": {
@@ -639,7 +897,7 @@
                                     "passthroughBehavior": "when_no_match",
                                     "httpMethod": "POST",
                                     "requestTemplates": {
-                                        "application/json": "{\n	\"method\": \"$context.httpMethod\",\n	\"body\" : $input.json('$'),\n	\"headers\": {\n		#foreach($param in $input.params().header.keySet())\n		\"$param\": \"$util.escapeJavaScript($input.params().header.get($param))\" #if($foreach.hasNext),#end\n\n		#end\n	},\n	\"queryParams\": {\n		#foreach($param in $input.params().querystring.keySet())\n		\"$param\": \"$util.escapeJavaScript($input.params().querystring.get($param))\" #if($foreach.hasNext),#end\n\n		#end\n	},\n	\"pathParams\": {\n		#foreach($param in $input.params().path.keySet())\n		\"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n\n		#end\n	}	\n}"
+                                        "application/json": "{\n\t\"method\": \"$context.httpMethod\",\n\t\"body\" : $input.json('$'),\n\t\"headers\": {\n\t\t#foreach($param in $input.params().header.keySet())\n\t\t\"$param\": \"$util.escapeJavaScript($input.params().header.get($param))\" #if($foreach.hasNext),#end\n\n\t\t#end\n\t},\n\t\"queryParams\": {\n\t\t#foreach($param in $input.params().querystring.keySet())\n\t\t\"$param\": \"$util.escapeJavaScript($input.params().querystring.get($param))\" #if($foreach.hasNext),#end\n\n\t\t#end\n\t},\n\t\"pathParams\": {\n\t\t#foreach($param in $input.params().path.keySet())\n\t\t\"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n\n\t\t#end\n\t}\t\n}"
                                     },
                                     "contentHandling": "CONVERT_TO_TEXT",
                                     "type": "aws"
@@ -704,11 +962,17 @@
                                     }
                                 },
                                 "x-amazon-apigateway-integration": {
-                                    "uri": {"Fn::Sub": 
-                                        ["arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${__LambdaArn__}/invocations",
-                                        {
-                                            "__LambdaArn__": {"Fn::GetAtt": ["GWearCloudGET", "Arn"]}
-                                        }
+                                    "uri": {
+                                        "Fn::Sub": [
+                                            "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${__LambdaArn__}/invocations",
+                                            {
+                                                "__LambdaArn__": {
+                                                    "Fn::GetAtt": [
+                                                        "GWearCloudGET",
+                                                        "Arn"
+                                                    ]
+                                                }
+                                            }
                                         ]
                                     },
                                     "responses": {
@@ -753,11 +1017,17 @@
                                     }
                                 ],
                                 "x-amazon-apigateway-integration": {
-                                    "uri": {"Fn::Sub": 
-                                        ["arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${__LambdaArn__}/invocations",
-                                        {
-                                            "__LambdaArn__": {"Fn::GetAtt": ["GWearCloudPOST", "Arn"]}
-                                        }
+                                    "uri": {
+                                        "Fn::Sub": [
+                                            "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${__LambdaArn__}/invocations",
+                                            {
+                                                "__LambdaArn__": {
+                                                    "Fn::GetAtt": [
+                                                        "GWearCloudPOST",
+                                                        "Arn"
+                                                    ]
+                                                }
+                                            }
                                         ]
                                     },
                                     "responses": {
@@ -768,7 +1038,7 @@
                                     "passthroughBehavior": "when_no_match",
                                     "httpMethod": "POST",
                                     "requestTemplates": {
-                                        "application/json": "{\n	\"method\": \"$context.httpMethod\",\n	\"body\" : $input.json('$'),\n	\"headers\": {\n		#foreach($param in $input.params().header.keySet())\n		\"$param\": \"$util.escapeJavaScript($input.params().header.get($param))\" #if($foreach.hasNext),#end\n\n		#end\n	},\n	\"queryParams\": {\n		#foreach($param in $input.params().querystring.keySet())\n		\"$param\": \"$util.escapeJavaScript($input.params().querystring.get($param))\" #if($foreach.hasNext),#end\n\n		#end\n	},\n	\"pathParams\": {\n		#foreach($param in $input.params().path.keySet())\n		\"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n\n		#end\n	}	\n}"
+                                        "application/json": "{\n\t\"method\": \"$context.httpMethod\",\n\t\"body\" : $input.json('$'),\n\t\"headers\": {\n\t\t#foreach($param in $input.params().header.keySet())\n\t\t\"$param\": \"$util.escapeJavaScript($input.params().header.get($param))\" #if($foreach.hasNext),#end\n\n\t\t#end\n\t},\n\t\"queryParams\": {\n\t\t#foreach($param in $input.params().querystring.keySet())\n\t\t\"$param\": \"$util.escapeJavaScript($input.params().querystring.get($param))\" #if($foreach.hasNext),#end\n\n\t\t#end\n\t},\n\t\"pathParams\": {\n\t\t#foreach($param in $input.params().path.keySet())\n\t\t\"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n\n\t\t#end\n\t}\t\n}"
                                     },
                                     "contentHandling": "CONVERT_TO_TEXT",
                                     "type": "aws"
@@ -860,6 +1130,119 @@
                         }
                     }
                 }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "f90cf688-9546-41be-adfd-4f802e2ec455"
+                }
+            }
+        },
+        "GrafanaEcsCluster": {
+            "Type": "AWS::ECS::Cluster",
+            "Properties": {
+                "ClusterName": "grafana-stack"
+            }
+        },
+        "GrafanaAutoScalingGroup": {
+            "Type": "AWS::AutoScaling::AutoScalingGroup",
+            "Properties": {
+                "VPCZoneIdentifier": [
+                    {
+                        "Ref": "gwearsubnet1"
+                    }
+                ],
+                "Cooldown": "300",
+                "LaunchConfigurationName": {
+                    "Ref": "ContainerHostInstances"
+                },
+                "MinSize": "0",
+                "MaxSize": "2",
+                "DesiredCapacity": "1",
+                "HealthCheckGracePeriod": "0",
+                "HealthCheckType": "EC2"
+            }
+        },
+        "ContainerHostInstances": {
+            "Type": "AWS::AutoScaling::LaunchConfiguration",
+            "Properties": {
+                "AssociatePublicIpAddress": true,
+                "ImageId": "ami-0fac5486e4cff37f4",
+                "SecurityGroups": [
+                    { "Ref": "sgPRISMS" }
+                ],
+                "InstanceType": "t2.micro",
+                "IamInstanceProfile": { "Ref": "ECSHostEC2InstanceProfile" },
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash -xe\n",
+                                "echo ECS_CLUSTER=",
+                                {
+                                    "Ref": "GrafanaEcsCluster"
+                                },
+                                " >> /etc/ecs/ecs.config\n",
+                                "yum install -y aws-cfn-bootstrap\n",
+                                "/opt/aws/bin/cfn-signal -e $? ",
+                                "         --stack ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "         --resource ECSAutoScalingGroup ",
+                                "         --region ",
+                                {
+                                    "Ref": "AWS::Region"
+                                },
+                                "\n"
+                            ]
+                        ]
+                    }
+                },
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/xvdcz",
+                        "Ebs": {
+                        "VolumeSize": 22
+                        }
+                    }
+                ]
+            }
+        },
+        "ECSHostEC2InstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [
+                    {
+                        "Ref": "RoleEcsInstance"
+                    }
+                ]
+            }
+        },
+        "GrafanaTask": {
+            "Type": "AWS::ECS::TaskDefinition",
+            "Properties": {
+                "Family": "grafana-app",
+                "ContainerDefinitions": [{
+                    "Name": "grafana-app",
+                    "Essential": "true",
+                    "Image": "grafana/grafana",
+                    "PortMappings": [{ 
+                        "ContainerPort": 3000,
+                        "HostPort": 3000
+                    }],
+                    "Memory": 800,
+                    "MemoryReservation": 400
+                }]
+            }
+        },
+        "GrafanaService": {
+            "Type": "AWS::ECS::Service",
+            "Properties": {
+                "Cluster": { "Ref": "GrafanaEcsCluster" },
+                "DesiredCount": 1,
+                "TaskDefinition": { "Ref": "GrafanaTask" }
             }
         }
     },
@@ -877,21 +1260,6 @@
     },
     "Metadata": {
         "AWS::CloudFormation::Designer": {
-            "bc138e54-d3fe-4240-9582-1712790b4e42": {
-                "size": {
-                    "width": 330,
-                    "height": 240
-                },
-                "position": {
-                    "x": 60,
-                    "y": 90
-                },
-                "z": 1,
-                "embeds": [
-                    "e21a12f8-e0c8-42ba-8ece-c29f5ab71067",
-                    "5868df31-8c47-4f90-b1d5-b9c9a7e34784"
-                ]
-            },
             "8ddcb568-af3f-490e-b189-c9d2dbd495db": {
                 "size": {
                     "width": 60,
@@ -917,43 +1285,6 @@
                 "embeds": [],
                 "isassociatedwith": [
                     "8ddcb568-af3f-490e-b189-c9d2dbd495db"
-                ]
-            },
-            "e21a12f8-e0c8-42ba-8ece-c29f5ab71067": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 90,
-                    "y": 150
-                },
-                "z": 2,
-                "parent": "bc138e54-d3fe-4240-9582-1712790b4e42",
-                "embeds": [],
-                "iscontainedinside": [
-                    "bc138e54-d3fe-4240-9582-1712790b4e42",
-                    "bc138e54-d3fe-4240-9582-1712790b4e42"
-                ]
-            },
-            "5868df31-8c47-4f90-b1d5-b9c9a7e34784": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 210,
-                    "y": 150
-                },
-                "z": 2,
-                "parent": "bc138e54-d3fe-4240-9582-1712790b4e42",
-                "embeds": [],
-                "isassociatedwith": [
-                    "e21a12f8-e0c8-42ba-8ece-c29f5ab71067"
-                ],
-                "iscontainedinside": [
-                    "bc138e54-d3fe-4240-9582-1712790b4e42",
-                    "bc138e54-d3fe-4240-9582-1712790b4e42"
                 ]
             },
             "f92971b0-7dce-489f-80ad-cd0dbdf6211b": {
@@ -1023,7 +1354,10 @@
                     "y": 420
                 },
                 "z": 1,
-                "embeds": []
+                "embeds": [],
+                "iscontainedinside": [
+                    "3509a5de-c1a3-4b97-aa7e-64c7a782237b"
+                ]
             },
             "10df573e-d67f-4594-bf67-91f5d53d8fcb": {
                 "size": {
@@ -1035,7 +1369,10 @@
                     "y": 420
                 },
                 "z": 1,
-                "embeds": []
+                "embeds": [],
+                "iscontainedinside": [
+                    "3509a5de-c1a3-4b97-aa7e-64c7a782237b"
+                ]
             },
             "80ea2bab-70c0-40a6-a4f2-518ee8cd2e54": {
                 "size": {
@@ -1049,6 +1386,14 @@
                 "z": 1,
                 "embeds": [
                     "99fda0e8-f542-419e-bbe0-94cc0e759e8d"
+                ],
+                "iscontainedinside": [
+                    "e162b163-95ac-4050-9e87-0dabfe2bf29d",
+                    "c2ed2836-1948-437d-af15-352705948eef",
+                    "1a3dcc75-031e-42ee-8f0f-9aa37946fdeb",
+                    "5033dc7f-d6a7-4b05-ac8d-551a1ff98995",
+                    "ebefb557-7d3f-4942-a02b-9d03ea401ffd",
+                    "aa5da46c-c897-4965-80b3-bc942b65e0c0"
                 ]
             },
             "99fda0e8-f542-419e-bbe0-94cc0e759e8d": {
@@ -1067,20 +1412,260 @@
                     "1406b0b9-c7a6-4cbb-a0f0-5b6ebb173846"
                 ],
                 "iscontainedinside": [
+                    "80ea2bab-70c0-40a6-a4f2-518ee8cd2e54",
                     "80ea2bab-70c0-40a6-a4f2-518ee8cd2e54"
                 ]
             },
-            "020befc9-09a8-45de-ba76-4160df15181d": {
+            "6622b35f-6192-46ea-b4bc-e38cd702f12b": {
                 "size": {
                     "width": 60,
                     "height": 60
                 },
                 "position": {
-                    "x": 360,
-                    "y": 540
+                    "x": 780,
+                    "y": 240
                 },
                 "z": 1,
                 "embeds": []
+            },
+            "bcb4cd63-cf29-4e11-825d-802a6025cf7f": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 780,
+                    "y": 150
+                },
+                "z": 1,
+                "embeds": [],
+                "isassociatedwith": [
+                    "a591f154-c70c-4a0d-8406-a5b822c5206f",
+                    "ca58d627-e83d-43c9-9b4e-a536ca5e36b5",
+                    "6622b35f-6192-46ea-b4bc-e38cd702f12b",
+                    "a28e8b25-9170-46c9-b037-f8f36f75d9cf"
+                ]
+            },
+            "ca58d627-e83d-43c9-9b4e-a536ca5e36b5": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 900,
+                    "y": 150
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "17bc4478-1aa1-48bb-af3a-b9404e084415": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 270,
+                    "y": 90
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "3509a5de-c1a3-4b97-aa7e-64c7a782237b": {
+                "size": {
+                    "width": 780,
+                    "height": 780
+                },
+                "position": {
+                    "x": 330,
+                    "y": 510
+                },
+                "z": 1,
+                "embeds": [
+                    "aa5da46c-c897-4965-80b3-bc942b65e0c0",
+                    "ebefb557-7d3f-4942-a02b-9d03ea401ffd",
+                    "5033dc7f-d6a7-4b05-ac8d-551a1ff98995",
+                    "1a3dcc75-031e-42ee-8f0f-9aa37946fdeb",
+                    "c2ed2836-1948-437d-af15-352705948eef",
+                    "e162b163-95ac-4050-9e87-0dabfe2bf29d",
+                    "b0e130a5-879a-485f-b41d-4b38e37a209e"
+                ]
+            },
+            "aa5da46c-c897-4965-80b3-bc942b65e0c0": {
+                "size": {
+                    "width": 150,
+                    "height": 150
+                },
+                "position": {
+                    "x": 570,
+                    "y": 990
+                },
+                "z": 2,
+                "parent": "3509a5de-c1a3-4b97-aa7e-64c7a782237b",
+                "embeds": [],
+                "iscontainedinside": [
+                    "3509a5de-c1a3-4b97-aa7e-64c7a782237b"
+                ]
+            },
+            "ebefb557-7d3f-4942-a02b-9d03ea401ffd": {
+                "size": {
+                    "width": 150,
+                    "height": 150
+                },
+                "position": {
+                    "x": 870,
+                    "y": 780
+                },
+                "z": 2,
+                "parent": "3509a5de-c1a3-4b97-aa7e-64c7a782237b",
+                "embeds": [],
+                "iscontainedinside": [
+                    "3509a5de-c1a3-4b97-aa7e-64c7a782237b"
+                ]
+            },
+            "5033dc7f-d6a7-4b05-ac8d-551a1ff98995": {
+                "size": {
+                    "width": 150,
+                    "height": 150
+                },
+                "position": {
+                    "x": 870,
+                    "y": 570
+                },
+                "z": 2,
+                "parent": "3509a5de-c1a3-4b97-aa7e-64c7a782237b",
+                "embeds": [],
+                "iscontainedinside": [
+                    "3509a5de-c1a3-4b97-aa7e-64c7a782237b"
+                ]
+            },
+            "1a3dcc75-031e-42ee-8f0f-9aa37946fdeb": {
+                "size": {
+                    "width": 150,
+                    "height": 150
+                },
+                "position": {
+                    "x": 360,
+                    "y": 870
+                },
+                "z": 2,
+                "parent": "3509a5de-c1a3-4b97-aa7e-64c7a782237b",
+                "embeds": [],
+                "iscontainedinside": [
+                    "3509a5de-c1a3-4b97-aa7e-64c7a782237b"
+                ]
+            },
+            "c2ed2836-1948-437d-af15-352705948eef": {
+                "size": {
+                    "width": 150,
+                    "height": 150
+                },
+                "position": {
+                    "x": 660,
+                    "y": 780
+                },
+                "z": 2,
+                "parent": "3509a5de-c1a3-4b97-aa7e-64c7a782237b",
+                "embeds": [],
+                "iscontainedinside": [
+                    "3509a5de-c1a3-4b97-aa7e-64c7a782237b"
+                ]
+            },
+            "e162b163-95ac-4050-9e87-0dabfe2bf29d": {
+                "size": {
+                    "width": 150,
+                    "height": 150
+                },
+                "position": {
+                    "x": 660,
+                    "y": 570
+                },
+                "z": 2,
+                "parent": "3509a5de-c1a3-4b97-aa7e-64c7a782237b",
+                "embeds": [],
+                "iscontainedinside": [
+                    "3509a5de-c1a3-4b97-aa7e-64c7a782237b"
+                ]
+            },
+            "b0e130a5-879a-485f-b41d-4b38e37a209e": {
+                "size": {
+                    "width": 240,
+                    "height": 240
+                },
+                "position": {
+                    "x": 360,
+                    "y": 570
+                },
+                "z": 2,
+                "parent": "3509a5de-c1a3-4b97-aa7e-64c7a782237b",
+                "embeds": [
+                    "a8ab3214-52fe-49e4-9303-65786d790437"
+                ],
+                "iscontainedinside": [
+                    "3509a5de-c1a3-4b97-aa7e-64c7a782237b"
+                ]
+            },
+            "79b37fc0-9716-47e3-8c69-bdfa7a27514f": {
+                "source": {
+                    "id": "3509a5de-c1a3-4b97-aa7e-64c7a782237b"
+                },
+                "target": {
+                    "id": "17bc4478-1aa1-48bb-af3a-b9404e084415"
+                }
+            },
+            "a8ab3214-52fe-49e4-9303-65786d790437": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 390,
+                    "y": 630
+                },
+                "z": 3,
+                "parent": "b0e130a5-879a-485f-b41d-4b38e37a209e",
+                "embeds": [],
+                "isassociatedwith": [
+                    "17bc4478-1aa1-48bb-af3a-b9404e084415"
+                ],
+                "iscontainedinside": [
+                    "b0e130a5-879a-485f-b41d-4b38e37a209e"
+                ],
+                "dependson": [
+                    "79b37fc0-9716-47e3-8c69-bdfa7a27514f"
+                ]
+            },
+            "a28e8b25-9170-46c9-b037-f8f36f75d9cf": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 540,
+                    "y": 90
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "f90cf688-9546-41be-adfd-4f802e2ec455": {
+                "size": {
+                    "width": 150,
+                    "height": 150
+                },
+                "position": {
+                    "x": 60,
+                    "y": 90
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "69628b57-2fe0-44eb-8ff3-7a6c97171029": {
+                "source": {
+                    "id": "bcb4cd63-cf29-4e11-825d-802a6025cf7f"
+                },
+                "target": {
+                    "id": "a28e8b25-9170-46c9-b037-f8f36f75d9cf"
+                },
+                "z": 15
             }
         }
     }
