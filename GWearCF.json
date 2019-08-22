@@ -79,20 +79,34 @@
                 "Policies": [
                     {
                         "PolicyName": "ecs-service",
-                         "PolicyDocument":{
-                            "Statement":[
-                                {
-                                "Effect":"Allow",
-                                "Action":[
-                                    "elasticloadbalancing:Describe*",
-                                    "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
-                                    "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
-                                    "ec2:Describe*",
-                                    "ec2:AuthorizeSecurityGroupIngress"
-                                ],
-                                "Resource":"*"
-                                }
-                            ]
+                         "PolicyDocument":{
+
+                            "Statement":[
+
+                                {
+
+                                "Effect":"Allow",
+
+                                "Action":[
+
+                                    "elasticloadbalancing:Describe*",
+
+                                    "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+
+                                    "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+
+                                    "ec2:Describe*",
+
+                                    "ec2:AuthorizeSecurityGroupIngress"
+
+                                ],
+
+                                "Resource":"*"
+
+                                }
+
+                            ]
+
                         }
                     }
                 ]
@@ -1287,46 +1301,87 @@
                 "Cluster": { "Ref": "GrafanaEcsCluster" },
                 "DesiredCount": 1,
                 "TaskDefinition": { "Ref": "GrafanaTask" },
-                "LoadBalancers":[
-                    {
-                        "ContainerName": "grafana-app",
-                        "ContainerPort":"3000",
-                        "LoadBalancerName":{
-                            "Ref":"EcsElb"
-                        }
-                    }
+                "LoadBalancers":[
+
+                    {
+
+                        "ContainerName": "grafana-app",
+
+                        "ContainerPort":"3000",
+
+                        "LoadBalancerName":{
+
+                            "Ref":"EcsElb"
+
+                        }
+
+                    }
+
                 ],
                 "Role": { "Ref": "RoleEcsInstance" }
             }
         },
-        "EcsElb":{
-            "Type":"AWS::ElasticLoadBalancing::LoadBalancer",
-            "DependsOn":[
-                "gwearpublicvpc"
-            ],
-            "Properties":{
-                "Subnets":[
-                    { "Ref":"gwearsubnet1" },
-                    { "Ref":"gwearsubnet2" }
-                ],
-                "Listeners":[
-                {
-                    "LoadBalancerPort":"80",
-                    "InstancePort":"3000",
-                    "Protocol":"HTTP"
-                }
-                ],
-                "SecurityGroups":[
-                    { "Ref":"sgPRISMS" }
-                ],
-                "HealthCheck":{
-                    "Target":"TCP:3000",
-                    "HealthyThreshold":"2",
-                    "UnhealthyThreshold":"10",
-                    "Interval":"30",
-                    "Timeout":"15"
-                }
-            }
+        "EcsElb":{
+
+            "Type":"AWS::ElasticLoadBalancing::LoadBalancer",
+
+            "DependsOn":[
+
+                "gwearpublicvpc"
+
+            ],
+
+            "Properties":{
+
+                "Subnets":[
+
+                    {
+ "Ref":"gwearsubnet1"
+ },
+
+                    {
+ "Ref":"gwearsubnet2"
+ }
+
+                ],
+
+                "Listeners":[
+
+                {
+
+                    "LoadBalancerPort":"80",
+
+                    "InstancePort":"3000",
+
+                    "Protocol":"HTTP"
+
+                }
+
+                ],
+
+                "SecurityGroups":[
+
+                    {
+ "Ref":"sgPRISMS"
+ }
+                ],
+
+                "HealthCheck":{
+
+                    "Target":"TCP:3000",
+
+                    "HealthyThreshold":"2",
+
+                    "UnhealthyThreshold":"10",
+
+                    "Interval":"30",
+
+                    "Timeout":"15"
+
+                }
+
+            }
+
         }
     },
     "Outputs": {
@@ -1338,7 +1393,31 @@
         },
         "grafanaUrl": {
             "Description": "URL for Grafana access",
-            "Value": ""
+            "Value": {
+                "Fn::GetAtt": ["EcsElb", "DNSName"]
+            }
+        },
+        "postgresqlUrl": {
+            "Description": "Full URL for accessing the PostgreSQL database (for use in Grafana)",
+            "Value": {
+                "Fn::Sub": [
+                    "postgres://${__RDSUsername__}:${__RDSPassword__}@${__EndpointURL__}:5432/gwear",
+                    {
+                        "__RDSUsername__": {
+                            "Ref": "RDSUsername"
+                        },
+                        "__RDSPassword__": {
+                            "Ref": "RDSPassword"
+                        },
+                        "__EndpointURL__": {
+                            "Fn::GetAtt": [
+                                "rdsgwear",
+                                "Endpoint.Address"
+                            ]
+                        }
+                    }
+                ]
+            } 
         }
     },
     "Metadata": {
