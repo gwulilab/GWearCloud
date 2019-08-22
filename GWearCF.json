@@ -15,6 +15,11 @@
             "Type": "String",
             "Default": "password",
             "Description": "Enter the database password to use. Default is password."
+        },
+        "BackupRetention": {
+            "Type": "Number",
+            "Default": "7",
+            "Description": "Enter the number of days to store database backups. Default is 7."
         }
     },
     "Resources": {
@@ -58,7 +63,8 @@
                             "Effect": "Allow",
                             "Principal": {
                                 "Service": [
-                                    "ec2.amazonaws.com"
+                                    "ec2.amazonaws.com",
+                                    "ecs.amazonaws.com"
                                 ]
                             },
                             "Action": [
@@ -69,6 +75,26 @@
                 },
                 "ManagedPolicyArns": [
                     "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+                ],
+                "Policies": [
+                    {
+                        "PolicyName": "ecs-service",
+                         "PolicyDocument":{
+                            "Statement":[
+                                {
+                                "Effect":"Allow",
+                                "Action":[
+                                    "elasticloadbalancing:Describe*",
+                                    "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+                                    "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+                                    "ec2:Describe*",
+                                    "ec2:AuthorizeSecurityGroupIngress"
+                                ],
+                                "Resource":"*"
+                                }
+                            ]
+                        }
+                    }
                 ]
             }
         },
@@ -158,7 +184,9 @@
                 "Port": "5432",
                 "PubliclyAccessible": "true",
                 "StorageType": "gp2",
-                "BackupRetentionPeriod": "7",
+                "BackupRetentionPeriod": {
+                    "Ref": "BackupRetention"
+                },
                 "MasterUsername": {
                     "Ref": "RDSUsername"
                 },
@@ -494,6 +522,18 @@
                 "IpProtocol": "tcp",
                 "FromPort": "5432",
                 "ToPort": "5432",
+                "CidrIp": "0.0.0.0/0"
+            }
+        },
+        "ingress4": {
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "Properties": {
+                "GroupId": {
+                    "Ref": "sgPRISMS"
+                },
+                "IpProtocol": "tcp",
+                "FromPort": "80",
+                "ToPort": "80",
                 "CidrIp": "0.0.0.0/0"
             }
         },
@@ -1155,7 +1195,7 @@
                 "LaunchConfigurationName": {
                     "Ref": "ContainerHostInstances"
                 },
-                "MinSize": "0",
+                "MinSize": "1",
                 "MaxSize": "2",
                 "DesiredCapacity": "1",
                 "HealthCheckGracePeriod": "0",
@@ -1239,11 +1279,54 @@
         },
         "GrafanaService": {
             "Type": "AWS::ECS::Service",
+            "DependsOn": [
+                "GrafanaAutoScalingGroup",
+                "GrafanaTask"
+            ],
             "Properties": {
                 "Cluster": { "Ref": "GrafanaEcsCluster" },
                 "DesiredCount": 1,
-                "TaskDefinition": { "Ref": "GrafanaTask" }
+                "TaskDefinition": { "Ref": "GrafanaTask" },
+                "LoadBalancers":[
+                    {
+                        "ContainerName": "grafana-app",
+                        "ContainerPort":"3000",
+                        "LoadBalancerName":{
+                            "Ref":"EcsElb"
+                        }
+                    }
+                ],
+                "Role": { "Ref": "RoleEcsInstance" }
             }
+        },
+        "EcsElb":{
+            "Type":"AWS::ElasticLoadBalancing::LoadBalancer",
+            "DependsOn":[
+                "gwearpublicvpc"
+            ],
+            "Properties":{
+                "Subnets":[
+                    { "Ref":"gwearsubnet1" },
+                    { "Ref":"gwearsubnet2" }
+                ],
+                "Listeners":[
+                {
+                    "LoadBalancerPort":"80",
+                    "InstancePort":"3000",
+                    "Protocol":"HTTP"
+                }
+                ],
+                "SecurityGroups":[
+                    { "Ref":"sgPRISMS" }
+                ],
+                "HealthCheck":{
+                    "Target":"TCP:3000",
+                    "HealthyThreshold":"2",
+                    "UnhealthyThreshold":"10",
+                    "Interval":"30",
+                    "Timeout":"15"
+                }
+            }
         }
     },
     "Outputs": {
