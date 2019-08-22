@@ -13,7 +13,7 @@ exports.handler = function(event, context, callback) {
         
         console.log(JSON.stringify(event.body));
         
-        var text = "INSERT INTO test_data (id, time, mac, sensor, value, metric) VALUES ($1, $2, $3, $4, $5, $6);";
+        var text = "INSERT INTO test_data (id, timestamp, mac, sensor, value, metric) VALUES ($1, $2, $3, $4, $5, $6);";
         var values = [event.body.id, event.body.timestamp, event.body.mac, event.body.sensor, event.body.value, event.body.metric];
         
         client.query(text, values, (err, res) => {

@@ -14,7 +14,7 @@ exports.handler = function(event, context, callback) {
            }
         });
         
-        var text = "CREATE TABLE test_data (id int, time bigint NOT NULL, mac text, sensor text, value decimal, metric text)";
+        var text = "CREATE TABLE test_data (id int, timestamp bigint NOT NULL, mac text, sensor text, value decimal, metric text)";
         
         client.query(text, (err, res) => {
             console.log("Writing to database");
