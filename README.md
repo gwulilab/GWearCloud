@@ -1,6 +1,8 @@
 # GWearCloud
 These are the supporting files needed to set up the GWearCloud system. Use of this system requires a free-tier AWS account at minimum.
 
+Documentation for the system can be found [here](http://gwulilab.seas.gwu.edu/GWearCloud/).
+
 ## What is Included
 The releases on this repo contain every file that is needed to set up GWearCloud. A description of each included file can be found below.
 
@@ -30,6 +32,9 @@ Full installation instructions can be found [in the wiki](https://github.com/gwu
     "timestamp" : 1566364870
 }
 ```
+
+## Compiling Documentation
+If you would like to compile the documentation for this project yourself, you can install all software dependecies by running `pip install -r requirements.txt`. From there, run `make html` or `make github`. This will compile the documentation as web pages.
 
 ## Contributing
 Coming soon.

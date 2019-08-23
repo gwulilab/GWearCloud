@@ -22,6 +22,14 @@
             "Description": "Enter the number of days to store database backups. Default is 7."
         }
     },
+    "Mappings": {
+        "RegionMap": {
+            "us-east-1": { "ecsami": "ami-0b16d80945b1a9c7d" },
+            "us-east-2": { "ecsami": "ami-0e7c12c1bedd6bf21" },
+            "us-west-1": { "ecsami": "ami-08a12265d9e050d57" },
+            "us-west-2": { "ecsami": "ami-0e434a58221275ed4" }
+        }
+    },
     "Resources": {
         "RoleRDSAccess": {
             "Type": "AWS::IAM::Role",
@@ -278,66 +286,6 @@
                 }
             }
         },
-        "gwearsubnet4": {
-            "Type": "AWS::EC2::Subnet",
-            "Properties": {
-                "CidrBlock": "10.0.48.0/20",
-                "VpcId": {
-                    "Ref": "gwearpublicvpc"
-                },
-                "AvailabilityZone": {
-                    "Fn::Select": [
-                        "3",
-                        { "Fn::GetAZs": "" }
-                    ]
-                }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "5033dc7f-d6a7-4b05-ac8d-551a1ff98995"
-                }
-            }
-        },
-        "gwearsubnet5": {
-            "Type": "AWS::EC2::Subnet",
-            "Properties": {
-                "CidrBlock": "10.0.64.0/20",
-                "VpcId": {
-                    "Ref": "gwearpublicvpc"
-                },
-                "AvailabilityZone": {
-                    "Fn::Select": [
-                        "4",
-                        { "Fn::GetAZs": "" }
-                    ]
-                }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "ebefb557-7d3f-4942-a02b-9d03ea401ffd"
-                }
-            }
-        },
-        "gwearsubnet6": {
-            "Type": "AWS::EC2::Subnet",
-            "Properties": {
-                "CidrBlock": "10.0.80.0/20",
-                "VpcId": {
-                    "Ref": "gwearpublicvpc"
-                },
-                "AvailabilityZone": {
-                    "Fn::Select": [
-                        "5",
-                        { "Fn::GetAZs": "" }
-                    ]
-                }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "aa5da46c-c897-4965-80b3-bc942b65e0c0"
-                }
-            }
-        },
         "dbsubnetdefault": {
             "Type": "AWS::RDS::DBSubnetGroup",
             "Properties": {
@@ -345,10 +293,7 @@
                 "SubnetIds": [
                     { "Ref": "gwearsubnet1" },
                     { "Ref": "gwearsubnet2" },
-                    { "Ref": "gwearsubnet3" },
-                    { "Ref": "gwearsubnet4" },
-                    { "Ref": "gwearsubnet5" },
-                    { "Ref": "gwearsubnet6" }
+                    { "Ref": "gwearsubnet3" }
                 ]
             },
             "Metadata": {
@@ -375,29 +320,6 @@
             "Type" : "AWS::EC2::SubnetRouteTableAssociation",
             "Properties" : {
                 "SubnetId" : { "Ref" : "gwearsubnet3" },
-                "RouteTableId" : { "Ref" : "gwearroutetable" }
-            }
-        },
-        "gwearSubnetAssoc4" : {
-            "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-            "Properties" : {
-                "SubnetId" : { "Ref" : "gwearsubnet4" },
-                "RouteTableId" : { "Ref" : "gwearroutetable" }
-            }
-
-        },
-        "gwearSubnetAssoc5" : {
-            "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-            "Properties" : {
-                "SubnetId" : { "Ref" : "gwearsubnet5" },
-                "RouteTableId" : { "Ref" : "gwearroutetable" }
-            }
-
-        },
-        "gwearSubnetAssoc6" : {
-            "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-            "Properties" : {
-                "SubnetId" : { "Ref" : "gwearsubnet6" },
                 "RouteTableId" : { "Ref" : "gwearroutetable" }
             }
         },
@@ -887,10 +809,10 @@
                                 "parameters": [
                                     {
                                         "in": "body",
-                                        "name": "PatientData",
+                                        "name": "MultiPatientData",
                                         "required": true,
                                         "schema": {
-                                            "$ref": "#/definitions/PatientData"
+                                            "$ref": "#/definitions/MultiPatientData"
                                         }
                                     }
                                 ],
@@ -1036,10 +958,10 @@
                                 "parameters": [
                                     {
                                         "in": "body",
-                                        "name": "PatientData",
+                                        "name": "MultiPatientData",
                                         "required": true,
                                         "schema": {
-                                            "$ref": "#/definitions/PatientData"
+                                            "$ref": "#/definitions/MultiPatientData"
                                         }
                                     }
                                 ],
@@ -1167,6 +1089,35 @@
                                     "type": "string"
                                 }
                             }
+                        },
+                        "MultiPatientData": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": [
+                                    "timestamp"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
+                                    "timestamp": {
+                                        "type": "integer"
+                                    },
+                                    "mac": {
+                                        "type": "string"
+                                    },
+                                    "sensor": {
+                                        "type": "string"
+                                    },
+                                    "value": {
+                                        "type": "number"
+                                    },
+                                    "metric": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -1177,6 +1128,16 @@
                 }
             }
         },
+        "GWearCloudBetaDeployment": {
+            "Type": "AWS::ApiGateway::Deployment",
+            "Properties": {
+                "RestApiId": {
+                    "Ref": "GWearCloudApi"
+                },
+                "Description": "Beta deployment for the GWearCloudAPI",
+                "StageName": "beta"
+            }
+        },
         "GrafanaEcsCluster": {
             "Type": "AWS::ECS::Cluster",
             "Properties": {
@@ -1206,7 +1167,7 @@
             "Type": "AWS::AutoScaling::LaunchConfiguration",
             "Properties": {
                 "AssociatePublicIpAddress": true,
-                "ImageId": "ami-0fac5486e4cff37f4",
+                "ImageId": { "Fn::FindInMap": [ "RegionMap", { "Ref" : "AWS::Region" }, "ecsami" ]},
                 "SecurityGroups": [
                     { "Ref": "sgPRISMS" }
                 ],

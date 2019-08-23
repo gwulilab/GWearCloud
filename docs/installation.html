@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Stack Components" href="components.html" />
+    <link rel="next" title="Verification" href="verification.html" />
     <link rel="prev" title="Welcome to GWearCloud’s documentation!" href="index.html" /> 
 </head>
 
@@ -84,6 +84,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#download-files">Download Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#s3-bucket-setup">S3 Bucket Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#creating-the-bucket">Creating the Bucket</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#adding-the-deployables">Adding the Deployables</a></li>
@@ -95,8 +96,13 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#postgresql-setup">PostgreSQL Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#data-visualisation-grafana-setup">Data Visualisation (Grafana) Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#availability-zones-not-accessible">Availability zones not accessible</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="verification.html">Verification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">Stack Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="android-api.html">Android API Documentation</a></li>
 </ul>
@@ -174,16 +180,21 @@
 <li><p>The implementer has prior knowledge of Android app development</p></li>
 </ul>
 </div>
+<div class="section" id="download-files">
+<h2>Download Files<a class="headerlink" href="#download-files" title="Permalink to this headline">¶</a></h2>
+<p>The following files should be downloaded from <a class="reference external" href="https://github.com/gwulilab/GWearCloud/releases">https://github.com/gwulilab/GWearCloud/releases</a>.</p>
+<ul class="simple">
+<li><p>GWearCloud-GET.zip</p></li>
+<li><p>GWearCloud-POST.zip</p></li>
+<li><p>GWearCloud-RDS-Setup.zip</p></li>
+<li><p>GWearCF.json</p></li>
+</ul>
+</div>
 <div class="section" id="s3-bucket-setup">
 <h2>S3 Bucket Setup<a class="headerlink" href="#s3-bucket-setup" title="Permalink to this headline">¶</a></h2>
 <p>For the CloudFormation template to work, there needs to be a valid S3 bucket to pull the Lambda deployment package from. If you are deploying your system on us-east-1 (N. Virginia), then the template already is linking to a valid S3 bucket. If you are deploying to any other region, the following instructions can be used to set up the bucket.</p>
 <div class="section" id="creating-the-bucket">
 <h3>Creating the Bucket<a class="headerlink" href="#creating-the-bucket" title="Permalink to this headline">¶</a></h3>
-<p>First, download the latest Lambda deployment zip files from <a class="reference external" href="https://github.com/gwulilab/GWearCloud/releases">https://github.com/gwulilab/GWearCloud/releases</a>.</p>
-<p>The files should be named:
-- GWearCloud-GET.zip
-- GWearCloud-POST.zip
-- GWearCloud-RDS-Setup.zip</p>
 <p>Navigate to Amazon S3 and click “Create bucket”: <a class="reference external" href="https://s3.console.aws.amazon.com/s3">https://s3.console.aws.amazon.com/s3</a></p>
 <p>Type in a bucket name and remember it for the next step. Choose the same region as the one you will be deploying GWearCloud. Then click “Next”.</p>
 <p>Leave all “Configure options” settings default. Click “Next”.</p>
@@ -193,44 +204,60 @@
 <div class="section" id="adding-the-deployables">
 <h3>Adding the Deployables<a class="headerlink" href="#adding-the-deployables" title="Permalink to this headline">¶</a></h3>
 <p>Click “Upload”.</p>
-<p>In the next window, add all zip files to the upload. Then click “Next”.</p>
+<p>In the next window, add all zip files to the upload. Then click “Next” (do NOT click “Upload”).</p>
 <p>Under “Manage public permissions” select “Grant public read access to this object(s)”. Click “Upload”.</p>
-<p>If everything was done correctly, you should see a screen similar to above.</p>
+<p>If everything was done correctly, you should see a screen similar to below.</p>
+<img alt="_images/s3-complete.png" src="_images/s3-complete.png" />
 </div>
 </div>
 <div class="section" id="cloudformation">
 <h2>CloudFormation<a class="headerlink" href="#cloudformation" title="Permalink to this headline">¶</a></h2>
 <p>Navigate to <a class="reference external" href="https://console.aws.amazon.com/cloudformation/">https://console.aws.amazon.com/cloudformation/</a> to access the CloudFormation console.</p>
-<p>Click on “Create new stack”.</p>
-<p>Select “Upload a template to Amazon S3” and browse for the GWearCF.json template file. Then click “Next”.</p>
-<p>Enter your desired stack name for your REST API. Then fill out the parameters for your stack. The most important to fill out is the “S3BucketNameParam” if you had to create a new bucket for your region. Then click “Next”.</p>
+<p>Click on “Create stack”.</p>
+<p>Select “Template is ready”.</p>
+<p>Under “Specify template”, choose “Upload a template file” and browse for the GWearCF.json template file. Then click “Next”.</p>
+<img alt="_images/cf-1.png" src="_images/cf-1.png" />
+<p>Enter your desired stack name for your REST API under “Stack name” (such as “gwearcloud”). Then fill out the parameters for your stack. The most important to fill out is the “S3BucketNameParam” if you had to create a new bucket for your region. Then click “Next”.</p>
 <p>Edit the stack settings as desired. Then click “Next”. The default settings are fine for most cases.</p>
-<p>The final window summarises the stack you are about to create. If you are satisfied with every setting, click “Create”. The average spin up time should be between 10-20 minutes (depending on customisations, internet speeds, etc). The system is done generating when the stack status is changed to “Create_Complete”.</p>
+<p>The final window summarises the stack you are about to create. If you are satisfied with every setting, check that you “acknowledge that AWS CloudFormation might create IAM resources”, then click “Create stack”.</p>
+<img alt="_images/cf-2.png" src="_images/cf-2.png" />
+<p>The average spin up time should be between 10-20 minutes (depending on customisations, internet speeds, etc). The system is done generating when the stack status is changed to “Create_Complete”.</p>
 <div class="section" id="outputs">
 <h3>Outputs<a class="headerlink" href="#outputs" title="Permalink to this headline">¶</a></h3>
-<p>The following outputs will be found in the “Outputs” tab:
-1. grafanaUrl - The URl to use for navigating to the data visualisation website
-2. postgreslUrl - The URL to use to connect Grafana to the cloud database
-3. restApiUrl - The URL to use when interfacing between an IoT gateway device and the GWearCloud system</p>
+<p>The following outputs will be found in the “Outputs” tab:</p>
+<ol class="arabic simple">
+<li><p>grafanaUrl - The URl to use for navigating to the data visualisation website</p></li>
+<li><p>postgreslUrl - The URL to use to connect Grafana to the cloud database</p></li>
+<li><p>restApiUrl - The URL to use when interfacing between an IoT gateway device and the GWearCloud system</p></li>
+</ol>
 </div>
 </div>
 <div class="section" id="postgresql-setup">
 <h2>PostgreSQL Setup<a class="headerlink" href="#postgresql-setup" title="Permalink to this headline">¶</a></h2>
-<p>Currently, the generated database instance does not automatically create a database table or schema. CLoudFormation will create a Lambda function called “RDS-Setup” that can be invoked to create the database table. The following steps should be taken to do that:</p>
+<p>Currently, the generated database instance does not automatically create a database table or schema. CloudFormation will create a Lambda function called “RDS-Setup” that can be invoked to create the database table. The following steps should be taken to do that:</p>
 <ol class="arabic simple">
 <li><p>Navigate to <a class="reference external" href="https://console.aws.amazon.com/lambda">https://console.aws.amazon.com/lambda</a></p></li>
 <li><p>Click the function that includes “RdsSetup” in the name</p></li>
 <li><p>Click “Test”</p></li>
-<li><p>The default test setup is fine. Give it a name and click “Create”</p></li>
-<li><p>Click “Save” then click “Test”</p></li>
+<li><p>The default test setup is fine. Give it an event name (such as “test”) and click “Create”</p></li>
+<li><p>Click “Test”</p></li>
 </ol>
-<p>If you see “Execution result: success”, then your database is now fully functional for the GWearCloud system.</p>
+<p>If you see “Execution result: succeeded”, then your database is now fully functional for the GWearCloud system.</p>
 </div>
 <div class="section" id="data-visualisation-grafana-setup">
 <h2>Data Visualisation (Grafana) Setup<a class="headerlink" href="#data-visualisation-grafana-setup" title="Permalink to this headline">¶</a></h2>
 <p>The CloudFormation template will automatically create a Grafana web app instance. However, Grafana will still need to be configured from its web interface.</p>
 <p>Instructions on gettings started with Grafana can be found at <a class="reference external" href="https://grafana.com/docs/guides/getting_started/">https://grafana.com/docs/guides/getting_started/</a></p>
 <p>Instructions for connecting your PostgreSQL database to Grafana can be found at <a class="reference external" href="https://grafana.com/docs/features/datasources/postgres/">https://grafana.com/docs/features/datasources/postgres/</a></p>
+</div>
+<div class="section" id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<p>The following are possible issues that can arise.</p>
+<div class="section" id="availability-zones-not-accessible">
+<h3>Availability zones not accessible<a class="headerlink" href="#availability-zones-not-accessible" title="Permalink to this headline">¶</a></h3>
+<p>The current CloudFormation template is only able to be deployed in regions that have 3 or more EC2 availability zones. To find out if your region is compatible, look at <a class="reference external" href="https://aws.amazon.com/about-aws/global-infrastructure/regions_az/">https://aws.amazon.com/about-aws/global-infrastructure/regions_az/</a></p>
+<p>If you region does not have at least 3 availability zones, you should install in a different region that is compatible.</p>
+</div>
 </div>
 </div>
 
@@ -242,7 +269,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="components.html" class="btn btn-neutral float-right" title="Stack Components" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="verification.html" class="btn btn-neutral float-right" title="Verification" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral float-left" title="Welcome to GWearCloud’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

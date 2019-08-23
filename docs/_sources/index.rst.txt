@@ -11,10 +11,11 @@ Welcome to GWearCloud's documentation!
    :caption: Contents:
 
    installation
+   verification
    components
    android-api
 
-A rapidly growing field in biomedical engineering is point-of-care devices and medical internet-of-things (IoT). Many of these devices can be better utilised by making them remotely viewable (and controllable if appropriate), allowing them to be used outside of a clinical setting and still be monitored by a clinician. However currently no open-source and easily deployable cloud informatic system for medical IoTs is available. To address this need, we have developed an easily deployable, yet scalable, cloud system for hardware-focused medical IoT research groups so that they can test their sensors in a cloud-based system.
+A rapidly growing field in biomedical engineering is point-of-care devices and medical internet-of-things (IoT). Many of these devices can be better utilised by making them remotely viewable (and controllable if appropriate), allowing them to be used outside of a clinical setting and still be monitored by a clinician. However currently not many open-source and easily deployable cloud informatic system for medical IoTs is available to the best of our knowledge. To address this need, we have developed an easily deployable, yet scalable, cloud system for hardware-focused medical IoT research groups so that they can test their sensors in a cloud-based system.
 
 Indices and tables
 ==================
