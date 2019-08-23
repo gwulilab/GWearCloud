@@ -88,17 +88,11 @@
                                 "Effect":"Allow",
 
                                 "Action":[
-
                                     "elasticloadbalancing:Describe*",
-
                                     "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
-
                                     "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
-
                                     "ec2:Describe*",
-
                                     "ec2:AuthorizeSecurityGroupIngress"
-
                                 ],
 
                                 "Resource":"*"
@@ -198,28 +192,18 @@
                 "Port": "5432",
                 "PubliclyAccessible": "true",
                 "StorageType": "gp2",
-                "BackupRetentionPeriod": {
-                    "Ref": "BackupRetention"
-                },
-                "MasterUsername": {
-                    "Ref": "RDSUsername"
-                },
-                "MasterUserPassword": {
-                    "Ref": "RDSPassword"
-                },
+                "BackupRetentionPeriod": { "Ref": "BackupRetention" },
+                "MasterUsername": { "Ref": "RDSUsername" },
+                "MasterUserPassword": { "Ref": "RDSPassword" },
                 "PreferredBackupWindow": "09:15-09:45",
                 "PreferredMaintenanceWindow": "mon:05:38-mon:06:08",
                 "DBName": "gwear",
                 "Engine": "postgres",
                 "EngineVersion": "10.6",
                 "LicenseModel": "postgresql-license",
-                "DBSubnetGroupName": {
-                    "Ref": "dbsubnetdefault"
-                },
+                "DBSubnetGroupName": { "Ref": "dbsubnetdefault" },
                 "VPCSecurityGroups": [
-                    {
-                        "Ref": "sgPRISMSPrivate"
-                    }
+                    { "Ref": "sgPRISMSPrivate" }
                 ],
                 "Tags": [
                     {
@@ -244,9 +228,7 @@
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "0",
-                        {
-                            "Fn::GetAZs": ""
-                        }
+                        { "Fn::GetAZs": "" }
                     ]
                 }
             },
@@ -266,9 +248,7 @@
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "1",
-                        {
-                            "Fn::GetAZs": ""
-                        }
+                        { "Fn::GetAZs": "" }
                     ]
                 }
             },
@@ -288,9 +268,7 @@
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "2",
-                        {
-                            "Fn::GetAZs": ""
-                        }
+                        { "Fn::GetAZs": "" }
                     ]
                 }
             },
@@ -310,9 +288,7 @@
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "3",
-                        {
-                            "Fn::GetAZs": ""
-                        }
+                        { "Fn::GetAZs": "" }
                     ]
                 }
             },
@@ -332,9 +308,7 @@
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "4",
-                        {
-                            "Fn::GetAZs": ""
-                        }
+                        { "Fn::GetAZs": "" }
                     ]
                 }
             },
@@ -354,9 +328,7 @@
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "5",
-                        {
-                            "Fn::GetAZs": ""
-                        }
+                        { "Fn::GetAZs": "" }
                     ]
                 }
             },
@@ -371,24 +343,12 @@
             "Properties": {
                 "DBSubnetGroupDescription": "default",
                 "SubnetIds": [
-                    {
-                        "Ref": "gwearsubnet1"
-                    },
-                    {
-                        "Ref": "gwearsubnet2"
-                    },
-                    {
-                        "Ref": "gwearsubnet3"
-                    },
-                    {
-                        "Ref": "gwearsubnet4"
-                    },
-                    {
-                        "Ref": "gwearsubnet5"
-                    },
-                    {
-                        "Ref": "gwearsubnet6"
-                    }
+                    { "Ref": "gwearsubnet1" },
+                    { "Ref": "gwearsubnet2" },
+                    { "Ref": "gwearsubnet3" },
+                    { "Ref": "gwearsubnet4" },
+                    { "Ref": "gwearsubnet5" },
+                    { "Ref": "gwearsubnet6" }
                 ]
             },
             "Metadata": {
@@ -398,82 +358,48 @@
             }
         },
         "gwearSubnetAssoc1" : {
-
             "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-
             "Properties" : {
-
                 "SubnetId" : { "Ref" : "gwearsubnet1" },
-
                 "RouteTableId" : { "Ref" : "gwearroutetable" }
-
             }
-
         },
         "gwearSubnetAssoc2" : {
-
             "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-
             "Properties" : {
-
                 "SubnetId" : { "Ref" : "gwearsubnet2" },
-
                 "RouteTableId" : { "Ref" : "gwearroutetable" }
-
             }
-
         },
         "gwearSubnetAssoc3" : {
-
             "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-
             "Properties" : {
-
                 "SubnetId" : { "Ref" : "gwearsubnet3" },
-
                 "RouteTableId" : { "Ref" : "gwearroutetable" }
-
             }
-
         },
         "gwearSubnetAssoc4" : {
-
             "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-
             "Properties" : {
-
                 "SubnetId" : { "Ref" : "gwearsubnet4" },
-
                 "RouteTableId" : { "Ref" : "gwearroutetable" }
-
             }
 
         },
         "gwearSubnetAssoc5" : {
-
             "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-
             "Properties" : {
-
                 "SubnetId" : { "Ref" : "gwearsubnet5" },
-
                 "RouteTableId" : { "Ref" : "gwearroutetable" }
-
             }
 
         },
         "gwearSubnetAssoc6" : {
-
             "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-
             "Properties" : {
-
                 "SubnetId" : { "Ref" : "gwearsubnet6" },
-
                 "RouteTableId" : { "Ref" : "gwearroutetable" }
-
             }
-
         },
         "sgPRISMS": {
             "Type": "AWS::EC2::SecurityGroup",
@@ -590,25 +516,16 @@
                 "MemorySize": 128,
                 "Environment": {
                     "Variables": {
-                        "PostgreSQL_URL": {
-                            "Fn::Sub": [
-                                "postgres://${__RDSUsername__}:${__RDSPassword__}@${__EndpointURL__}:5432/gwear",
-                                {
-                                    "__RDSUsername__": {
-                                        "Ref": "RDSUsername"
-                                    },
-                                    "__RDSPassword__": {
-                                        "Ref": "RDSPassword"
-                                    },
-                                    "__EndpointURL__": {
-                                        "Fn::GetAtt": [
-                                            "rdsgwear",
-                                            "Endpoint.Address"
-                                        ]
-                                    }
-                                }
+                        "HOST": {
+                            "Fn::GetAtt": [
+                                "rdsgwear",
+                                "Endpoint.Address"
                             ]
-                        }
+                        },
+                        "PORT": 5432,
+                        "DATABASE": "gwear",
+                        "USER": { "Ref": "RDSUsername" },
+                        "PASSWORD": { "Ref": "RDSPassword" }
                     }
                 },
                 "Handler": "index.handler",
@@ -618,7 +535,7 @@
                         "Arn"
                     ]
                 },
-                "Timeout": 3,
+                "Timeout": 5,
                 "Runtime": "nodejs8.10",
                 "VpcConfig": {
                     "SecurityGroupIds": [
