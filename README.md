@@ -37,4 +37,4 @@ Full installation instructions can be found [in the wiki](https://github.com/gwu
 If you would like to compile the documentation for this project yourself, you can install all software dependecies by running `pip install -r requirements.txt`. From there, run `make html` or `make github`. This will compile the documentation as web pages.
 
 ## Contributing
-Coming soon.
+We welcome any contributions to the project that you feel would be beneficial. Please read [this first](https://github.com/gwulilab/GWearCloud/blob/master/CONTRIBUTING.md) though.
