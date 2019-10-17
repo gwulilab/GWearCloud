@@ -160,9 +160,60 @@
 <div class="section" id="rest-api">
 <h2>REST API<a class="headerlink" href="#rest-api" title="Permalink to this headline">¶</a></h2>
 <p>As the purpose of this guide is system verification, we will be using API Gateway test functions rather than using a proper gateway device and sensor.</p>
+<p>Navigate to the API Gateway console, and you should find a generated GWearCloudAPI. Select this.</p>
+<p>Under <cite>Resources</cite>, select the <cite>POST</cite> action under <cite>/patient-data</cite>.</p>
+<p>Click <cite>Test</cite>.</p>
+<p>For the Request Body, enter the following test data:</p>
+<dl>
+<dt>::</dt><dd><dl class="simple">
+<dt>{</dt><dd><p>“metric” : “test_measurement”,
+“sensor” : “test_sensor”,
+“id” : 1,
+“value” : 12.5,
+“mac” : “abc123”,
+“timestamp” : 1566364870</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+<p>Click <cite>Test</cite>. A successful POST operation should return the following response body:</p>
+<dl>
+<dt>::</dt><dd><p>{
+“statusCode”: 200,</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“body”: {</dt><dd><p>“message”: “ok”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>}</p>
+</dd>
+</dl>
+<p>Under <cite>Resources</cite>, select the <cite>GET</cite> action under <cite>/patient-data</cite>.</p>
+<p>Click <cite>Test</cite> and then click <cite>Test</cite>. A successful GET operation should return the following response body:</p>
+<dl>
+<dt>::</dt><dd><dl>
+<dt>[</dt><dd><dl class="simple">
+<dt>{</dt><dd><p>“id”: 1,
+“timestamp”: “1566364870”,
+“mac”: “abc123”,
+“sensor”: “test_sensor”,
+“value”: “12.5”,
+“metric”: “test_measurement”</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+<p>]</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="grafana">
 <h2>Grafana<a class="headerlink" href="#grafana" title="Permalink to this headline">¶</a></h2>
+<p>TODO</p>
 </div>
 </div>
 

@@ -86,12 +86,12 @@
 <li class="toctree-l1"><a class="reference internal" href="verification.html">Verification</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Stack Components</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#amazon-cloudformation">Amazon CloudFormation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#amazon-lambda">Amazon Lambda</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#amazon-s3">Amazon S3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#amazon-ec2">Amazon EC2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#amazon-lambda">Amazon Lambda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#amazon-ecs">Amazon ECS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#amazon-s3">Amazon S3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#amazon-rds">Amazon RDS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#amazon-api-gateway">Amazon API Gateway</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#amazon-ecs">Amazon ECS</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="android-api.html">Android API Documentation</a></li>
@@ -165,24 +165,29 @@
 <h2>Amazon CloudFormation<a class="headerlink" href="#amazon-cloudformation" title="Permalink to this headline">¶</a></h2>
 <p>This allows us to store the cloud stack as code, making it easily reproducible and editable on a large scale. Each cloud stack component is described as a JSON object, which is then read by CloudFormation to generate full cloud system.</p>
 </div>
+<div class="section" id="amazon-ec2">
+<h2>Amazon EC2<a class="headerlink" href="#amazon-ec2" title="Permalink to this headline">¶</a></h2>
+<p>This is AWS’s virtual server and computing service. It is the underlying resource behind most computing services that AWS offers. GWearCloud does not directly interact with EC2 instances, but rather uses services that help to automate and manage EC2 instances.</p>
+</div>
 <div class="section" id="amazon-lambda">
 <h2>Amazon Lambda<a class="headerlink" href="#amazon-lambda" title="Permalink to this headline">¶</a></h2>
+<p>Amazon Lambda is a serverless computing service, meaning that it will generate a new virtual server to perform a function, and then shut down the server when done. This allows for lower costs, as well as scalability. This is used for each API behaviour code, as well as CloudFormation setup scripts.</p>
+</div>
+<div class="section" id="amazon-ecs">
+<h2>Amazon ECS<a class="headerlink" href="#amazon-ecs" title="Permalink to this headline">¶</a></h2>
+<p>This is used to create containerised apps that are run on an Amazon EC2 instance. Containerisation allows for distributed computing, as well as scalable app proceses.</p>
 </div>
 <div class="section" id="amazon-s3">
 <h2>Amazon S3<a class="headerlink" href="#amazon-s3" title="Permalink to this headline">¶</a></h2>
 <p>This is used to host the Lambda function deployable ZIP files. These deployables are used by the CloudFormation template to automatically set up Amazon Lambda.</p>
 </div>
-<div class="section" id="amazon-ec2">
-<h2>Amazon EC2<a class="headerlink" href="#amazon-ec2" title="Permalink to this headline">¶</a></h2>
-</div>
 <div class="section" id="amazon-rds">
 <h2>Amazon RDS<a class="headerlink" href="#amazon-rds" title="Permalink to this headline">¶</a></h2>
+<p>This is a service that allows for a managed relational database. In the case of GWearCloud, RDS is used for a PostgreSQL database that contains all the sensor data.</p>
 </div>
 <div class="section" id="amazon-api-gateway">
 <h2>Amazon API Gateway<a class="headerlink" href="#amazon-api-gateway" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="amazon-ecs">
-<h2>Amazon ECS<a class="headerlink" href="#amazon-ecs" title="Permalink to this headline">¶</a></h2>
+<p>API Gateway is the main way to interact with the database, a decision made for security. By providing an abstracton layer from directly using SQL, GWearCloud prevents malicious database actions.</p>
 </div>
 </div>
 
